@@ -1,8 +1,19 @@
 #pragma once
 #include <stdbool.h>
 
-char** generate_maze(int width, int height);
-void free_maze(char **maze, int height);
-void print_maze(char** grid, int width, int height);
-bool is_wall(char **maze, int x, int y);
-void set_cell(char **maze, int x, int y, char value);
+#define WALL '█'
+#define EMPTY ' '
+#define EXIT 'X'
+#define PLAYER 'O'
+
+typedef struct {
+    char** grid;
+    int width;
+    int height;
+} Maze;
+
+void init_maze(Maze* maze, int width, int height);
+void free_maze(Maze* maze);
+void print_maze(Maze maze);
+bool is_cell_valid(Maze maze, int x, int y);
+void set_cell(Maze* maze, int x, int y, char value);

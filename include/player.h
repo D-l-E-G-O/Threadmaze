@@ -6,6 +6,6 @@ typedef struct {
     int y;
 } Player;
 
-void init_player(Player *player, char **maze);
-void move_player(Player *player, char input, char **maze);
-int is_exit_reached(Player *player, char **maze);
+void init_player(Player* player, Maze* maze);
+void move_player(Player* player, char input, Maze* maze);
+bool is_exit_reached(Player player, Maze maze);

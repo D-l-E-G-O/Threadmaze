@@ -6,7 +6,7 @@ BIN = bin/maze-game
 
 .PHONY: all clean dirs run
 
-all: dirs $(BIN) run
+all: dirs $(BIN)
 
 dirs:
 	mkdir -p build bin
