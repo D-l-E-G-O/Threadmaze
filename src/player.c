@@ -39,6 +39,8 @@ void move_player(Player* player, char input, Maze* maze) {
 bool is_exit_reached(Player player, Maze maze) {
     int x = player.x;
     int y = player.y;
+    int exit_x = maze.width - 1;
+    int exit_y = maze.height - 1;
 
-    return maze.grid[y][x] == EXIT;
+    return x == exit_x && y == exit_y;
 }

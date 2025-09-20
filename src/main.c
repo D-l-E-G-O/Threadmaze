@@ -34,6 +34,6 @@ void game_loop(Maze* maze, Player* player) {
     printf("x:%d, y:%d\n", player->x, player->y);
 }
 
-void end_game(int victory) {
+void end_game(bool victory) {
 
 }

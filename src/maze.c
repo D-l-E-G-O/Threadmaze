@@ -22,6 +22,11 @@ void init_maze(Maze* maze, int width, int height) {
         }
     }
 
+    int exit_x = width - 1;
+    int exit_y = height - 1;
+
+    grid[exit_y][exit_x] = EXIT;
+
     maze->grid = grid;
     maze->width = width;
     maze->height = height;
