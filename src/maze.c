@@ -3,21 +3,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
-█
-*/
 
 void init_maze(Maze* maze, int width, int height) {
     Cell **cells = malloc(sizeof(Cell*) * height);
     if (!cells) { 
         perror("malloc"); 
-        exit(1); 
+        exit(EXIT_FAILURE); 
     }
     for (int i = 0; i < height; i++) {
         cells[i] = malloc(sizeof(Cell) * width);
         if (!cells[i]) { 
             perror("malloc"); 
-            exit(1); 
+            exit(EXIT_FAILURE); 
         }
     }
     maze->cells = cells;
@@ -64,17 +61,17 @@ void print_maze(const Maze* maze) {
             }
 
             // Coordinates in the logical maze
-            int cell_row = i / 2;
-            int cell_col = j / 2;
+            int cell_col = i / 2;
+            int cell_row = j / 2;
 
             if (i % 2 == 1 && j % 2 == 1) {
                 // Cell
-                printf(maze->cells[cell_row][cell_col].symbol);
+                printf("%s", maze->cells[cell_col][cell_row].symbol);
             }
             else if (i % 2 == 1 && j % 2 == 0) {
                 // Vertical wall between 2 cells
-                Cell left  = maze->cells[cell_row][cell_col - 1];
-                Cell right = maze->cells[cell_row][cell_col];
+                Cell left  = maze->cells[cell_col][cell_row - 1];
+                Cell right = maze->cells[cell_col][cell_row];
                 if (left.right && right.left)
                     printf(SPACE);
                 else
@@ -82,8 +79,8 @@ void print_maze(const Maze* maze) {
             }
             else if (i % 2 == 0 && j % 2 == 1) {
                 // Horizontal wall between 2 cells
-                Cell top    = maze->cells[cell_row - 1][cell_col];
-                Cell bottom = maze->cells[cell_row][cell_col];
+                Cell top = maze->cells[cell_col - 1][cell_row];
+                Cell bottom = maze->cells[cell_col][cell_row];
                 if (top.down && bottom.up)
                     printf(SPACE);
                 else
@@ -133,15 +130,20 @@ void set_cell(Maze* maze, int x, int y, Cell value) {
 }
 
 bool **init_bool_matrix(int width, int height) {
-    bool **m = malloc(sizeof(bool*) * height);
-    if (!m) return NULL;
+    if (width <= 0 || height <= 0) return NULL;
+    bool **m = calloc(height, sizeof(*m));
+    if (!m) {
+        perror("calloc"); 
+        exit(EXIT_FAILURE); 
+    }
+
     for (int i = 0; i < height; i++) {
-        m[i] = calloc(width, sizeof(bool));
+        m[i] = calloc(width, sizeof(**m));
         if (!m[i]) {
+            perror("malloc");
             // cleanup on allocation failure
-            for (int j = 0; j < i; j++) free(m[j]);
-            free(m);
-            return NULL;
+            free_bool_matrix(m, i);
+            exit(EXIT_FAILURE);
         }
     }
     return m;
@@ -158,18 +160,20 @@ void free_bool_matrix(bool **m, int height) {
 void carve_passage(Maze* maze, int r1, int c1, int r2, int c2) {
     // bounds check
     if (r1 < 0 || r1 >= maze->height || r2 < 0 || r2 >= maze->height ||
-        c1 < 0 || c1 >= maze->width  || c2 < 0 || c2 >= maze->width) return;
+        c1 < 0 || c1 >= maze->width  || c2 < 0 || c2 >= maze->width) {
+        return;
+    }
 
-    if (r2 == r1 - 1 && c2 == c1) { // r2 above r1
+    if (r2 == r1 - 1 && c2 == c1) { // up (r2 above r1)
         maze->cells[r1][c1].up = true;
         maze->cells[r2][c2].down = true;
-    } else if (r2 == r1 + 1 && c2 == c1) { // r2 below r1
+    } else if (r2 == r1 + 1 && c2 == c1) { // down (r2 below r1)
         maze->cells[r1][c1].down = true;
         maze->cells[r2][c2].up = true;
-    } else if (r2 == r1 && c2 == c1 - 1) { // left
+    } else if (r2 == r1 && c2 == c1 - 1) { // left (c2 left to c1)
         maze->cells[r1][c1].left = true;
         maze->cells[r2][c2].right = true;
-    } else if (r2 == r1 && c2 == c1 + 1) { // right
+    } else if (r2 == r1 && c2 == c1 + 1) { // right (c2 right to c1)
         maze->cells[r1][c1].right = true;
         maze->cells[r2][c2].left = true;
     } else {
@@ -182,7 +186,7 @@ void init_path(Path* path, int width, int height, int initial_capacity) {
     path->cells = malloc(sizeof(CellCoord) * initial_capacity);
     if (!path->cells) { 
         perror("malloc"); 
-        exit(1); 
+        exit(EXIT_FAILURE);
     }
     path->size = 0;
     path->capacity = initial_capacity;
@@ -222,7 +226,10 @@ int push_path(Path* path, int row, int col) {
     if (path->size >= path->capacity) {
         int newcap = path->capacity * 2;
         CellCoord *tmp = realloc(path->cells, sizeof(CellCoord) * newcap);
-        if (!tmp) { perror("realloc"); exit(1); }
+        if (!tmp) { 
+            perror("realloc"); 
+            exit(EXIT_FAILURE); 
+        }
         path->cells = tmp;
         path->capacity = newcap;
     }
@@ -271,7 +278,10 @@ void generate_maze_wilson(Maze* maze) {
 
     // visited[row][col] : is cell already in the final maze
     bool **visited = init_bool_matrix(width, height); // init_bool_matrix(width,height) returns [height][width]
-    if (!visited) { perror("init_bool_matrix"); exit(1); }
+    if (!visited) { 
+        perror("init_bool_matrix"); 
+        exit(EXIT_FAILURE); 
+    }
 
     // seed RNG once
     srand((unsigned)time(NULL));

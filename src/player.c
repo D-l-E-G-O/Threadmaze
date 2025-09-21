@@ -5,13 +5,10 @@
 
 
 void init_player(Player* player, Maze* maze) {
-    int x = 0;
-    int y = 0;
+    player->x = 0;
+    player->y = 0;
 
-    player->x = x;
-    player->y = y;
-
-    maze->cells[y][x].symbol = PLAYER;
+    maze->cells[0][0].symbol = PLAYER;
     maze->cells[maze->height-1][maze->width-1].symbol = EXIT;
 }
 
@@ -37,10 +34,5 @@ void move_player(Player* player, char input, Maze* maze) {
 }
 
 bool is_exit_reached(Player player, Maze maze) {
-    int x = player.x;
-    int y = player.y;
-    int exit_x = maze.width - 1;
-    int exit_y = maze.height - 1;
-
-    return x == exit_x && y == exit_y;
+    return player.x == maze.width-1 && player.y == maze.height-1;
 }

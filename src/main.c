@@ -19,6 +19,8 @@ int main(int argc, char* argv[]) {
         height = atoi(argv[2]);
     }
 
+    srand(time(NULL));
+    init_input();
     Maze* maze = &((Maze){0});
     Player* player = &((Player){0});
     init_maze(maze, width, height);
@@ -30,6 +32,8 @@ int main(int argc, char* argv[]) {
         game_loop(maze, player);
     }
     free_maze(maze);
+    restore_input();
+    return EXIT_SUCCESS;
 }
 
 void game_loop(Maze* maze, Player* player) {
