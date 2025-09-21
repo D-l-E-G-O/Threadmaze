@@ -1,11 +1,12 @@
 #pragma once
 #include <stdbool.h>
+#include "utils.h"
 
 #define WALL "██"
 #define SPACE "  "
 #define CELL "  "
-#define EXIT "><"
-#define PLAYER "()"
+#define EXIT RED "██" RESET
+#define PLAYER GREEN "██" RESET
 
 typedef struct {
     bool up;
