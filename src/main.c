@@ -9,13 +9,20 @@
 
 
 int main(int argc, char* argv[]) {
-    int width = 10;
+    int width = 5;
     int height = 5;
+
+    if (argc == 3) {
+        width = atoi(argv[1]);
+        height = atoi(argv[2]);
+    }
+
     Maze* maze;
     Player* player;
     init_maze(maze, width, height);
+    generate_maze_wilson(maze);
     init_player(player, maze);
-    print_maze(*maze);
+    print_maze(maze);
     printf("x:%d, y:%d\n", player->x, player->y);
     while (!is_exit_reached(*player, *maze)) {
         game_loop(maze, player);
@@ -30,7 +37,7 @@ void game_loop(Maze* maze, Player* player) {
     }
     system("clear");
     move_player(player, input, maze);
-    print_maze(*maze);
+    print_maze(maze);
     printf("x:%d, y:%d\n", player->x, player->y);
 }
 

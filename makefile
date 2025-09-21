@@ -19,7 +19,7 @@ build/%.o: src/%.c
 
 run: all
 	clear
-	./$(BIN)
+	./$(BIN) $(ARGS)
 
 clean:
 	rm -rf build/* bin/*

@@ -11,7 +11,8 @@ void init_player(Player* player, Maze* maze) {
     player->x = x;
     player->y = y;
 
-    maze->grid[y][x] = PLAYER;
+    maze->cells[y][x].symbol = PLAYER;
+    maze->cells[maze->height-1][maze->width-1].symbol = EXIT;
 }
 
 void move_player(Player* player, char input, Maze* maze) {
@@ -26,13 +27,12 @@ void move_player(Player* player, char input, Maze* maze) {
         default: return;
     }
 
-    if (is_cell_valid(*maze, new_x, new_y)) {
-        int old_x = player->x;
-        int old_y = player->y;
-        maze->grid[old_y][old_x] = EMPTY;
+    int old_x = player->x;
+    int old_y = player->y;
+
+    if (move_cell(maze, old_x, old_y, new_x, new_y)) {
         player->x = new_x;
         player->y = new_y;
-        maze->grid[new_y][new_x] = PLAYER;
     }
 }
 

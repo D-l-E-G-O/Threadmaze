@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 
-
 void clear_screen(void);
 int random_int(int min, int max);
+int clamp_int(int value, int min, int max);
 char get_input_non_blocking(void);
