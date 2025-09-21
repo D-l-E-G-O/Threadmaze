@@ -3,7 +3,7 @@
 
 #define WALL "██"
 #define SPACE "  "
-#define CELL ".."
+#define CELL "  "
 #define EXIT "><"
 #define PLAYER "()"
 

@@ -7,6 +7,8 @@
 #include "timer.h"
 #include "utils.h"
 
+void game_loop(Maze* maze, Player* player);
+void end_game(bool victory);
 
 int main(int argc, char* argv[]) {
     int width = 5;
@@ -17,13 +19,13 @@ int main(int argc, char* argv[]) {
         height = atoi(argv[2]);
     }
 
-    Maze* maze;
-    Player* player;
+    Maze* maze = &((Maze){0});
+    Player* player = &((Player){0});
     init_maze(maze, width, height);
     generate_maze_wilson(maze);
     init_player(player, maze);
     print_maze(maze);
-    printf("x:%d, y:%d\n", player->x, player->y);
+    //printf("x:%d, y:%d\n", player->x, player->y);
     while (!is_exit_reached(*player, *maze)) {
         game_loop(maze, player);
     }
@@ -42,5 +44,8 @@ void game_loop(Maze* maze, Player* player) {
 }
 
 void end_game(bool victory) {
-
+    if (victory) {
+        
+    }
+    return;
 }

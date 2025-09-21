@@ -28,10 +28,15 @@ void init_maze(Maze* maze, int width, int height) {
 void free_maze(Maze* maze) {
     if (!maze || !maze->cells) return;
     for (int i = 0; i < maze->height; i++) {
-        free(maze->cells[i]);
+        if (maze->cells[i] != NULL) {
+            free(maze->cells[i]);
+            maze->cells[i] = NULL;
+        }
     }
     free(maze->cells);
     maze->cells = NULL;
+    maze->width = 0;
+    maze->height = 0;
 }
 
 void fill_maze(Maze* maze) {
