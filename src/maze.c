@@ -125,10 +125,6 @@ bool move_cell(Maze* maze, int old_x, int old_y, int new_x, int new_y) {
     return false;
 }
 
-void set_cell(Maze* maze, int x, int y, Cell value) {
-    maze->cells[y][x] = value;
-}
-
 bool **init_bool_matrix(int width, int height) {
     if (width <= 0 || height <= 0) return NULL;
     bool **m = calloc(height, sizeof(*m));
