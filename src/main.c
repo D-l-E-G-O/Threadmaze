@@ -7,6 +7,8 @@
 #include "timer.h"
 #include "utils.h"
 
+#define NO_TIMER -1
+
 void game_loop(Maze* maze, Player* player);
 void end_game(bool victory, int initial_time);
 void print_game(Maze* maze);
@@ -17,7 +19,7 @@ struct argsTimer{
     Maze* maze;
 };
 
-int time_left;
+int time_left = NO_TIMER;
 
 int main(int argc, char* argv[]) {
     int width = 5;
@@ -29,8 +31,11 @@ int main(int argc, char* argv[]) {
         height = atoi(argv[2]);
     }
     if (argc == 4) {
-        time_left = atoi(argv[3]);
-        initial_time = time_left;
+        int time = atoi(argv[3]);
+        if (time > 0) {
+            time_left = time;
+            initial_time = time;
+        }
     }
 
     srand(time(NULL));
@@ -61,13 +66,13 @@ int main(int argc, char* argv[]) {
         game_loop(maze, player);
     }
 
-    if (argc == 4) {
+    if (timer) {
         pthread_cancel(timer);
     }
     system("clear");
     print_game(maze);
 
-    end_game(time_left > 0, initial_time);
+    end_game(is_exit_reached(*player, *maze), initial_time);
 
     free_maze(maze);
     restore_input();
@@ -85,7 +90,12 @@ void game_loop(Maze* maze, Player* player) {
 
 void end_game(bool victory, int initial_time) {
     if (victory) {
-        printf("You won in %d seconds !\n", initial_time - time_left);
+        if (initial_time) {
+            printf("You won in %d seconds !\n", initial_time - time_left);
+        }
+        else {
+            printf("You won !\n");
+        }
     }
     else {
         printf("You lost !\n");
@@ -95,9 +105,11 @@ void end_game(bool victory, int initial_time) {
 
 void print_game(Maze* maze) {
     system("clear");
-    int minutes = time_left / 60;
-    int seconds = time_left % 60;
-    printf("Time left: %02d:%02d\n", minutes, seconds);
+    if (time_left != NO_TIMER) {
+        int minutes = time_left / 60;
+        int seconds = time_left % 60;
+        printf("Time left: %02d:%02d\n", minutes, seconds);
+    }
     print_maze(maze);
 }
 
