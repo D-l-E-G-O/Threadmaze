@@ -15,6 +15,7 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
 #define WHITE   "\033[37m"
+#define GRAY    "\033[90m"
 
 // Bold
 #define BOLDRED     "\033[1m\033[31m"

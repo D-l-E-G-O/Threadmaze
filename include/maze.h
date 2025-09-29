@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include "utils.h"
 
-#define WALL "██"
+#define WALL GRAY "██" RESET
 #define SPACE "  "
 #define CELL "  "
-#define EXIT RED "██" RESET
-#define PLAYER GREEN "██" RESET
+#define EXIT BOLDRED "██" RESET
+#define PLAYER BOLDGREEN "██" RESET
 
 typedef struct {
     bool up;
