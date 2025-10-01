@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         args.maze = maze;
         if (pthread_create(&timer, NULL, _clock, (void*) &args)) {
             perror("pthread_create");
-            return EXIT_FAILURE;
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -67,7 +67,10 @@ int main(int argc, char* argv[]) {
     }
 
     if (timer) {
-        pthread_cancel(timer);
+        if (pthread_cancel(timer)) {
+            perror("pthread_cancel");
+            exit(EXIT_FAILURE);
+        }
     }
     system("clear");
     print_game(maze);
@@ -113,7 +116,7 @@ void print_game(Maze* maze) {
     print_maze(maze);
 }
 
-static void *_clock(void* args){
+static void *_clock(void* args) {
     int* time_left = ((struct argsTimer*)args)->time_left;
     Maze* maze = ((struct argsTimer*)args)->maze;
     (*time_left)++;
