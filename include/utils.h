@@ -18,6 +18,7 @@
 #define GRAY    "\033[90m"
 
 // Bold
+#define BOLD        "\033[1m"
 #define BOLDRED     "\033[1m\033[31m"
 #define BOLDGREEN   "\033[1m\033[32m"
 #define BOLDYELLOW  "\033[1m\033[33m"
