@@ -1,9 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <termios.h>
 #include <unistd.h>
-#include <time.h>
 
 #define RESET   "\033[0m"
 
@@ -24,9 +22,5 @@
 #define BOLDYELLOW  "\033[1m\033[33m"
 #define BOLDBLUE    "\033[1m\033[34m"
 
-void clear_screen(void);
 int random_int(int min, int max);
 int clamp_int(int value, int min, int max);
-void init_input(void);
-void restore_input(void);
-char get_input_non_blocking(void);

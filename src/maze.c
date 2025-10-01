@@ -1,6 +1,7 @@
-#include "maze.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include "maze.h"
 
 
 void init_maze(Maze* maze, int width, int height) {

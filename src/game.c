@@ -4,7 +4,7 @@
 #include "maze.h"
 #include "player.h"
 #include "render.h"
-#include "utils.h"
+#include "input.h"
 #include "timer.h"
 
 static volatile sig_atomic_t tick = 0;
