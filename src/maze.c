@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "maze.h"
+#include "matrix.h"
 
 
 void init_maze(Maze* maze, int width, int height) {
@@ -125,34 +126,6 @@ bool move_cell(Maze* maze, int old_x, int old_y, int new_x, int new_y) {
     return false;
 }
 
-bool **init_bool_matrix(int width, int height) {
-    if (width <= 0 || height <= 0) return NULL;
-    bool **m = calloc(height, sizeof(*m));
-    if (!m) {
-        perror("calloc"); 
-        exit(EXIT_FAILURE); 
-    }
-
-    for (int i = 0; i < height; i++) {
-        m[i] = calloc(width, sizeof(**m));
-        if (!m[i]) {
-            perror("malloc");
-            // cleanup on allocation failure
-            free_bool_matrix(m, i);
-            exit(EXIT_FAILURE);
-        }
-    }
-    return m;
-}
-
-void free_bool_matrix(bool **m, int height) {
-    if (!m) return;
-    for (int i = 0; i < height; i++) {
-        free(m[i]);
-    }
-    free(m);
-}
-
 void carve_passage(Maze* maze, int r1, int c1, int r2, int c2) {
     // bounds check
     if (r1 < 0 || r1 >= maze->height || r2 < 0 || r2 >= maze->height ||
@@ -175,94 +148,6 @@ void carve_passage(Maze* maze, int r1, int c1, int r2, int c2) {
     } else {
         // not adjacent -> ignore
     }
-}
-
-void init_path(Path* path, int width, int height, int initial_capacity) {
-    if (initial_capacity <= 0) initial_capacity = 16;
-    path->cells = malloc(sizeof(CellCoord) * initial_capacity);
-    if (!path->cells) { 
-        perror("malloc"); 
-        exit(EXIT_FAILURE);
-    }
-    path->size = 0;
-    path->capacity = initial_capacity;
-    path->width = width;
-    path->height = height;
-    path->in_path = init_bool_matrix(width, height);
-}
-
-void free_path(Path* path) {
-    if (!path) return;
-    free(path->cells);
-    free_bool_matrix(path->in_path, path->height);
-    path->cells = NULL;
-    path->in_path = NULL;
-    path->size = 0;
-    path->capacity = 0;
-}
-
-int push_path(Path* path, int row, int col) {
-    // bounds check
-    if (row < 0 || row >= path->height || col < 0 || col >= path->width) {
-        return -2; // invalid coordinate
-    }
-
-    // if already in path, find its index
-    if (path->in_path[row][col]) {
-        for (int i = 0; i < path->size; i++) {
-            if (path->cells[i].row == row && path->cells[i].col == col) {
-                return i; // cycle detected at index i
-            }
-        }
-        // Shouldn't happen: in_path true but not found -> treat as error
-        return -2;
-    }
-
-    // enlarge if necessary
-    if (path->size >= path->capacity) {
-        int newcap = path->capacity * 2;
-        CellCoord *tmp = realloc(path->cells, sizeof(CellCoord) * newcap);
-        if (!tmp) { 
-            perror("realloc"); 
-            exit(EXIT_FAILURE); 
-        }
-        path->cells = tmp;
-        path->capacity = newcap;
-    }
-
-    // add
-    path->cells[path->size].row = row;
-    path->cells[path->size].col = col;
-    path->in_path[row][col] = true;
-    path->size++;
-    return -1; // ok, added, no cycle
-}
-
-void truncate_path(Path* path, int index) {
-    if (index < 0) {
-        path->size = 0;
-        // clear all in_path
-        for (int i = 0; i < path->height; i++)
-            for (int j = 0; j < path->width; j++)
-                path->in_path[i][j] = false;
-        return;
-    }
-    if (index >= path->size - 1) return; // nothing to truncate
-    for (int i = index + 1; i < path->size; i++) {
-        int rr = path->cells[i].row;
-        int cc = path->cells[i].col;
-        path->in_path[rr][cc] = false;
-    }
-    path->size = index + 1;
-}
-
-bool all_cells_visited(bool **visited, int width, int height) {
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (!visited[i][j]) return false;
-        }
-    }
-    return true;
 }
 
 void generate_maze_wilson(Maze* maze) {
@@ -322,20 +207,23 @@ void generate_maze_wilson(Maze* maze) {
             next_row = clamp_int(next_row, 0, height - 1);
             next_col = clamp_int(next_col, 0, width - 1);
 
-            int idx = push_path(&path, next_row, next_col);
-            if (idx >= 0) {
-                // we hit a cycle: truncate after idx
-                truncate_path(&path, idx);
-                // set current position to the last element in path
-                cell_row = path.cells[path.size - 1].row;
-                cell_col = path.cells[path.size - 1].col;
-            } else if (idx == -1) {
-                // newly added, move current to next
-                cell_row = next_row;
-                cell_col = next_col;
-            } else {
-                // idx == -2 means invalid coord: break to avoid infinite loop
-                break;
+            int index = push_path(&path, next_row, next_col);
+            switch (index) {
+                case ERROR:
+                    perror("push_path");
+                    return;
+                case NO_CYCLE:
+                    // newly added, move current to next
+                    cell_row = next_row;
+                    cell_col = next_col;
+                    break;
+                default:
+                    // we hit a cycle: truncate after idx
+                    truncate_path(&path, index);
+                    // set current position to the last element in path
+                    cell_row = path.cells[path.size - 1].row;
+                    cell_col = path.cells[path.size - 1].col;
+                    break;
             }
         }
 
