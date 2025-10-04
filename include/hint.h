@@ -1,15 +1,16 @@
 #pragma once
 #include <stdbool.h>
 #include "maze.h"
+#include "player.h"
+#include "path.h"
 
 typedef struct {
+    Path path;
     int duration;
     bool active;
-    Maze* maze;
-    CellCoord* cells;
 } Hint;
 
-void init_hint(Hint* hint, Maze* maze, int duration);
-void show_hint(Hint* hint);
-void hide_hint(Hint* hint);
+bool init_hint(Hint* hint, Maze* maze, Player* player);
+void toggle_hint(Hint* hint, int duration);
+void update_hint(Hint* hint, Maze* maze, Player* player);
 void free_hint(Hint* hint);

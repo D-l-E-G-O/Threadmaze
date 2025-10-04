@@ -2,7 +2,6 @@
 #include "game.h"
 #include "timer.h"
 #include "utils.h"
-#include <stdio.h>
 
 #define MAX_WIDTH get_terminal_width()/4 - 1
 #define MAX_HEIGHT get_terminal_height()/2 - 2

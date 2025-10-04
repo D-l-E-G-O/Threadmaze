@@ -1,34 +1,14 @@
 #pragma once
 #include <stdbool.h>
 #include "utils.h"
+#include "path.h"
+#include "cell.h"
 
 #define WALL GRAY "██" RESET
 #define SPACE "  "
 #define CELL "  "
 #define EXIT BOLDRED "██" RESET
 #define PLAYER BOLDGREEN "██" RESET
-
-typedef struct {
-    bool up;
-    bool down;
-    bool left;
-    bool right;
-    char* symbol;
-} Cell;
-
-typedef struct {
-    int row;
-    int col;
-} CellCoord;
-
-typedef struct {
-    CellCoord* cells;
-    int size;
-    int capacity;
-    bool** in_path;
-    int width;
-    int height;
-} Path;
 
 typedef struct {
     Cell** cells;
@@ -47,8 +27,3 @@ bool** init_bool_matrix(int width, int height);
 void free_bool_matrix(bool** m, int height);
 void carve_passage(Maze* maze, int r1, int c1, int r2, int c2);
 void generate_maze_wilson(Maze* maze);
-void init_path(Path* path, int width, int height, int initial_capacity);
-void free_path(Path* path);
-int push_path(Path* path, int row, int col);
-bool all_cells_visited(bool** visited, int width, int height);
-void truncate_path(Path* path, int index);
