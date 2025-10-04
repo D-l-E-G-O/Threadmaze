@@ -14,8 +14,7 @@ void print_game(Maze* maze, int time_left) {
     print_maze(maze);
 }
 
-void end_game(bool victory, int initial_time, int time_left) {
-    printf("\n");
+void print_game_result(bool victory, int initial_time, int time_left) {
     if (victory) {
         printf(BOLDGREEN);
         if (initial_time > 0)
