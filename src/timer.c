@@ -25,6 +25,7 @@ bool init_timer(Timer* timer, int seconds, pid_t pid_caller, int callback_signal
     timer->pid_caller = pid_caller;
     timer->callback_signal = callback_signal;
     timer->active = false;
+    timer->initialized = true;
     return true;
 }
 
@@ -42,11 +43,11 @@ bool start_timer(Timer* timer) {
 bool stop_timer(Timer* timer) {
     if (!timer || !timer->active) return false;
     timer->active = false;
-    pthread_cancel(timer->thread);
-    pthread_join(timer->thread, NULL);
+    if (pthread_cancel(timer->thread) != 0) return false;
+    if (pthread_join(timer->thread, NULL) != 0) return false;
     return true;
 }
 
-int get_time_left(Timer* timer) {
-    return timer ? timer->time_left : -1;
+int get_time_left(Timer timer) {
+    return timer.initialized ? timer.time_left : -1;
 }

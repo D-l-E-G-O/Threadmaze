@@ -1,8 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pthread -Iinclude
-SRC = src/main.c src/maze.c src/player.c src/enemy.c src/utils.c src/timer.c src/game.c src/render.c src/input.c
+CFLAGS = -Wall -Wextra -Werror -pthread -Iinclude
+SRC = src/main.c src/maze.c src/player.c src/enemy.c src/utils.c src/timer.c src/game.c src/render.c src/input.c src/hint.c
 OBJ = $(SRC:src/%.c=build/%.o)
 BIN = bin/maze-game
+ARGS ?=
 
 .PHONY: all clean dirs run
 
