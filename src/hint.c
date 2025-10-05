@@ -1,69 +1,62 @@
 #include "hint.h"
 
-
-// static int heuristic(CellCoord a, CellCoord b) {
-//     return abs(a.row - b.row) + abs(a.col - b.col);
-// }
-
-static bool calculate_path_astar(Maze* maze, Player* player, Path* path) {
-    // Implémentation classique d'A*
-    // Tu peux utiliser une matrice de bool visited, une min-heap ou un tableau simple
-    // Chaque CellCoord doit inclure r et c (row, col)
-    // Remplir path->cells avec la séquence de cellules du joueur vers la sortie
-    // Retourner true si chemin trouvé, false sinon
-    maze = maze;
-    player = player;
-    path = path;
-    return true; // placeholder, tu implémentes A*
+void init_hint(Hint* hint, int max_duration, int maze_width, int maze_height) {
+    if (!hint) return;
+    init_astar_path(&hint->path, maze_width * maze_height);
+    hint->active = false;
+    hint->duration = max_duration;
+    hint->time_left = 0;
 }
 
-bool init_hint(Hint* hint, Maze* maze, Player* player) {
-    if (!hint || !maze || !player) return false;
+void generate_hint_path(Maze* maze, Player* player, AStarPath* path) {
+    if (!maze || !player || !path) return;
+
+    int start_row = player->y;
+    int start_col = player->x;
+    int end_row = maze->height - 1;
+    int end_col = maze->width - 1;
+
+    init_astar_path(path, maze->width * maze->height);
+
+    if (!astar_solve(maze, start_row, start_col, end_row, end_col, path, astar_manhattan)) {
+        path->size = 0;
+        perror("astar_solve");
+    }
+}
+
+void activate_hint(Hint* hint, Maze* maze, Player* player) {
+    if (!hint || !maze || !player) return;
+
+    generate_hint_path(maze, player, &hint->path);
+    hint->active = true;
+    hint->time_left = hint->duration;
+
+    apply_hint(hint, maze, HINT);
+}
+
+void deactivate_hint(Hint* hint, Maze* maze) {
+    if (!hint || !maze) return;
+    if (!hint->active) return;
+
+    apply_hint(hint, maze, CELL);
 
     hint->active = false;
-    hint->duration = 0;
-
-    int max_capacity = maze->width * maze->height;
-    hint->path.cells = malloc(sizeof(CellCoord) * max_capacity);
-    if (!hint->path.cells) return false;
+    hint->time_left = 0;
     hint->path.size = 0;
-    hint->path.capacity = max_capacity;
-
-    calculate_path_astar(maze, player, &hint->path);
-
-    return true;
 }
 
-void toggle_hint(Hint* hint, int duration) {
-    if (!hint) return;
-    if (hint->active) {
-        hint->active = false;
-        hint->duration = 0;
-    } else {
-        hint->active = true;
-        hint->duration = duration;
-    }
-}
-
-void update_hint(Hint* hint, Maze* maze, Player* player) {
+void hint_tick(Hint* hint, Maze* maze) {
     if (!hint || !hint->active) return;
-
-    hint->duration--;
-    if (hint->duration <= 0) {
-        hint->active = false;
-        hint->duration = 0;
-        return;
+    hint->time_left--;
+    if (hint->time_left <= 0) {
+        deactivate_hint(hint, maze);
     }
-
-    // Recalculate path each time the player moves
-    hint->path.size = 0;
-    calculate_path_astar(maze, player, &hint->path);
 }
 
-void free_hint(Hint* hint) {
-    if (!hint) return;
-    free(hint->path.cells);
-    hint->path.cells = NULL;
-    hint->path.size = 0;
-    hint->path.capacity = 0;
+void apply_hint(Hint* hint, Maze* maze, char* symbol) {
+    if (!hint || !maze || !hint->active) return;
+    for (int i = 1; i < hint->path.size - 1; i++) {
+        CellCoord c = hint->path.cells[i];
+        maze->cells[c.row][c.col].symbol = symbol;
+    }
 }

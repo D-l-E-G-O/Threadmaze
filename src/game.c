@@ -3,6 +3,7 @@
 #include "game.h"
 #include "render.h"
 #include "input.h"
+#include "hint.h"
 
 static volatile sig_atomic_t tick = 0;
 
@@ -16,9 +17,11 @@ void game_start(int width, int height, int time_limit) {
 
     Maze maze;
     Player player;
+    Hint hint;
 
     init_maze(&maze, width, height);
     generate_maze_wilson(&maze);
+    init_hint(&hint, HINT_DURATION, maze.width, maze.height);
     init_player(&player, &maze);
     init_input();
 
@@ -35,7 +38,21 @@ void game_start(int width, int height, int time_limit) {
     while (game_should_continue(player, maze, timer, time_limit)) {
         char input = get_input_non_blocking();
         if (input) {
-            move_player(&player, input, &maze);
+            if (input == 'H' || input == 'h') {
+                if (hint.active) {
+                    deactivate_hint(&hint, &maze);
+                } else {
+                    activate_hint(&hint, &maze, &player);
+                }
+            } else {
+                if (hint.active) {
+                    deactivate_hint(&hint, &maze);
+                    move_player(&player, input, &maze);
+                    activate_hint(&hint, &maze, &player);
+                } else {
+                    move_player(&player, input, &maze);
+                }
+            }
             print_game(&maze, get_time_left(timer));
         }
         if (tick) {

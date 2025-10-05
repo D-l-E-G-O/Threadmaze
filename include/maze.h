@@ -9,6 +9,7 @@
 #define CELL "  "
 #define EXIT BOLDRED "██" RESET
 #define PLAYER BOLDGREEN "██" RESET
+#define HINT BOLDBLUE "**" RESET
 
 typedef struct {
     Cell** cells;
