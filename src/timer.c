@@ -10,9 +10,10 @@ static void* timer_thread(void* arg) {
     while (timer->active && timer->time_left > 0) {
         sleep(1);
         timer->time_left--;
+        if (!timer->active) break;
         if(kill(timer->pid_caller, timer->callback_signal)){
             perror("kill");
-            return false;
+            break;
         }
     }
     timer->active = false;
@@ -31,10 +32,18 @@ bool init_timer(Timer* timer, int seconds, pid_t pid_caller, int callback_signal
 
 
 bool start_timer(Timer* timer) {
-    if (!timer || timer->active) return false;
+    if (!timer) return false;
+    if (timer->active) {
+        stop_timer(timer);
+    }
+    if (!timer->initialized) {
+        fprintf(stderr, "[ERROR] Timer must be initialized before start.\n");
+        return false;
+    }
     timer->active = true;
     if (pthread_create(&timer->thread, NULL, timer_thread, timer)) {
         perror("pthread_create");
+        timer->active = false;
         return false;
     }
     return true;
@@ -43,8 +52,13 @@ bool start_timer(Timer* timer) {
 bool stop_timer(Timer* timer) {
     if (!timer || !timer->active) return false;
     timer->active = false;
-    if (pthread_cancel(timer->thread) != 0) return false;
-    if (pthread_join(timer->thread, NULL) != 0) return false;
+    //if (pthread_cancel(timer->thread) != 0) return false;
+    if (timer->initialized) {
+        if (pthread_join(timer->thread, NULL)) {
+            perror("pthread_join");
+            return false;
+        }
+    }
     return true;
 }
 
