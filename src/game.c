@@ -51,6 +51,7 @@ void game_start(int width, int height, int time_limit) {
 
     while (game_should_continue(player, maze, maze_timer, time_limit)) {
         char input = get_input_non_blocking();
+        bool refresh = false;
         if (input) {
             if (input == 'H' || input == 'h') {
                 if (hint.active) {
@@ -67,15 +68,18 @@ void game_start(int width, int height, int time_limit) {
                     move_player(&player, input, &maze);
                 }
             }
-            print_game(&maze, get_time_left(maze_timer));
+            refresh = true;
         }
         if (tick) {
             tick = 0;
-            print_game(&maze, get_time_left(maze_timer));
+            refresh = true;
         }
         if (hint_tick && get_time_left(hint_timer) == 0) {
             hint_tick = 0;
             deactivate_hint(&hint, &maze, true);
+            refresh = true;
+        }
+        if (refresh) {
             print_game(&maze, get_time_left(maze_timer));
         }
     }
