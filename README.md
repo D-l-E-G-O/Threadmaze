@@ -39,7 +39,7 @@ Il permet de **générer des labyrinthes aléatoires**, de **naviguer dedans en 
     ./bin/maze-game	                      Génère un labyrinthe de taille maximale sans limite de temps
     ./bin/maze-game 10	                  Taille max, avec un timer de 10 secondes
     ./bin/maze-game 5 6	                  Labyrinthe de 5×6 sans timer
-    ./bin/maze-game 5 6 9	                Labyrinthe de 5×6 avec un timer de 9 secondes
+    ./bin/maze-game 5 6 9	              Labyrinthe de 5×6 avec un timer de 9 secondes
     ./bin/maze-game -w 10 -h 9 -t 5	      Largeur=10, Hauteur=9, Timer=5s
     
 
