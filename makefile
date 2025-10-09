@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -pthread -Iinclude
-SRC = src/*.c
+SRC = $(wildcard src/*.c)
 OBJ = $(SRC:src/%.c=build/%.o)
 BIN = bin/maze-game
 ARGS ?=
