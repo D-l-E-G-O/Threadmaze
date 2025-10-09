@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -pthread -Iinclude
-SRC = src/main.c src/maze.c src/player.c src/enemy.c src/utils.c src/timer.c src/game.c src/render.c src/input.c src/hint.c src/path.c src/matrix.c src/astar.c src/heap.c
+SRC = src/*.c
 OBJ = $(SRC:src/%.c=build/%.o)
 BIN = bin/maze-game
 ARGS ?=
