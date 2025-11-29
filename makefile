@@ -7,7 +7,7 @@ ARGS ?=
 
 .PHONY: all clean dirs run
 
-all: dirs $(BIN)
+all: dirs $(BIN) clean
 
 dirs:
 	mkdir -p build bin
@@ -23,4 +23,7 @@ run: all
 	./$(BIN) $(ARGS)
 
 clean:
+	rm -rf build/*
+
+mrproper:
 	rm -rf build/* bin/*
