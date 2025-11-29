@@ -29,7 +29,10 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
         }
     }
-
+    if (!width || !height) {
+        printf("Your terminal's size is insufficient to display the labyrinth.\n");
+        return EXIT_SUCCESS;
+    }
     game_start(width, height, time_limit);
     return EXIT_SUCCESS;
 }
