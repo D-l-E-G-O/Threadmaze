@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
         }
     }
-    if (!width || !height) {
+    if (width <= 0 || height <= 0) {
         printf("Your terminal's size is insufficient to display the labyrinth.\n");
         return EXIT_SUCCESS;
     }
