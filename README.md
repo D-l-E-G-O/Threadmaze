@@ -1,4 +1,4 @@
-# Threadmaze
+# Threadmaze ![Static Badge](https://img.shields.io/badge/Statut-En%20Cours-green)
 
 **Threadmaze** est un projet personnel développé en C dont le but est de créer un **jeu de labyrinthe jouable directement dans le terminal**.
 Il permet de **générer des labyrinthes aléatoires**, de **naviguer dedans en temps réel**, et d’utiliser un **solveur intelligent** pour trouver le chemin vers la sortie.
