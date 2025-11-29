@@ -31,6 +31,7 @@ Il permet de **générer des labyrinthes aléatoires**, de **naviguer dedans en 
     ```bash
     git clone https://github.com/D-l-E-G-O/threadmaze.git
     cd threadmaze
+    ```
 2. **Compilation :**
     ```bash
     make
@@ -38,6 +39,7 @@ Il permet de **générer des labyrinthes aléatoires**, de **naviguer dedans en 
 2. **Lancer le jeu :**
     ```bash
     ./bin/maze-game
+    ```
 4. **Lancer le jeu avec différents paramètres :**
     - **-w** : Défnit la **largeur**
     - **-h** : Définit la **hauteur**
@@ -48,8 +50,8 @@ Il permet de **générer des labyrinthes aléatoires**, de **naviguer dedans en 
     ./bin/maze-game -w 10 -h 9 -t 5
     ```
 
-    > [!IMPORTANT]
-    > La taille personnalisée du labyrinthe ne sera appliquée que si elle peut tenir dans la fenêtre du terminal. Si la taille demandée dépasse la largeur ou la hauteur de la fenêtre, le labyrinthe sera automatiquement ajusté pour remplir l'espace disponible dans cet axe.
+> [!IMPORTANT]
+> La taille personnalisée du labyrinthe ne sera appliquée que si elle peut tenir dans la fenêtre du terminal. Si la taille demandée dépasse la largeur ou la hauteur de la fenêtre, le labyrinthe sera automatiquement ajusté pour remplir l'espace disponible dans cet axe.
     
 
 ## Fonctionnalités principales
