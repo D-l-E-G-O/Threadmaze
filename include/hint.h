@@ -5,8 +5,6 @@
 #include "astar.h"
 #include "timer.h"
 
-#define HINT_DURATION 2
-
 typedef struct {
     AStarPath path;
     bool active;
