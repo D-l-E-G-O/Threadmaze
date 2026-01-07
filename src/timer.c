@@ -1,67 +1,111 @@
+#define _DEFAULT_SOURCE // For clock_gettime
 #include "timer.h"
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <signal.h>
+#include <time.h>       // For timespec
+#include <errno.h>      // For ETIMEDOUT
 
+static void *timer_thread_routine(void *arg) {
+    Timer *timer = (Timer*)arg;
+    
+    pthread_mutex_lock(&timer->mutex);
 
-static void* timer_thread(void* arg) {
-    Timer* timer = (Timer*)arg;
     while (timer->active && timer->time_left > 0) {
-        sleep(1);
-        timer->time_left--;
-        if (!timer->active) break;
-        if(kill(timer->pid_caller, timer->callback_signal)){
-            perror("kill");
-            break;
+        // Target time (now + 1 second)
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += 1;
+
+        // We wait until timeout or signal (stop)
+        int rc = pthread_cond_timedwait(&timer->cond, &timer->mutex, &ts);
+
+        if (rc == ETIMEDOUT) {
+            // One second passed
+            timer->time_left--;
+            timer->tick_event = true;
+        } 
+        else {
+            // We were awakened by timer_stop (cond_signal)
+            // The while(timer->active) loop will end
         }
     }
+
     timer->active = false;
+    // Case where the time passed naturally : we inform the UI
+    if (timer->time_left <= 0) timer->tick_event = true;
+    
+    pthread_mutex_unlock(&timer->mutex);
     return NULL;
 }
 
-bool init_timer(Timer* timer, int seconds, pid_t pid_caller, int callback_signal) {
-    if (!timer) return false;
+void timer_init(Timer *timer, int seconds) {
+    if (!timer) return;
     timer->time_left = seconds;
-    timer->pid_caller = pid_caller;
-    timer->callback_signal = callback_signal;
+    timer->initial_time = seconds;
     timer->active = false;
-    timer->initialized = true;
-    return true;
+    timer->tick_event = false;
+    timer->has_thread = false;
+
+    pthread_mutex_init(&timer->mutex, NULL);
+    pthread_cond_init(&timer->cond, NULL);
 }
 
-
-bool start_timer(Timer* timer) {
+bool timer_start(Timer *timer) {
     if (!timer) return false;
-    if (timer->active) {
-        stop_timer(timer);
-    }
-    if (!timer->initialized) {
-        fprintf(stderr, "[ERROR] Timer must be initialized before start.\n");
-        return false;
-    }
+    
+    timer_stop(timer); // Ensure it's not already running
+
+    pthread_mutex_lock(&timer->mutex);
     timer->active = true;
-    if (pthread_create(&timer->thread, NULL, timer_thread, timer)) {
+    timer->time_left = timer->initial_time;
+    pthread_mutex_unlock(&timer->mutex);
+
+    if (pthread_create(&timer->thread, NULL, timer_thread_routine, timer) != 0) {
         perror("pthread_create");
+        pthread_mutex_lock(&timer->mutex);
         timer->active = false;
+        pthread_mutex_unlock(&timer->mutex);
         return false;
     }
+
+    timer->has_thread = true;
     return true;
 }
 
-bool stop_timer(Timer* timer) {
-    if (!timer || !timer->active) return false;
-    timer->active = false;
-    //if (pthread_cancel(timer->thread) != 0) return false;
-    if (timer->initialized) {
-        if (pthread_join(timer->thread, NULL)) {
-            perror("pthread_join");
-            return false;
-        }
+void timer_stop(Timer *timer) {
+    if (!timer) return;
+
+    pthread_mutex_lock(&timer->mutex);
+    // If the timer is active, we deactivate it and awaken the thread
+    if (timer->active) {
+        timer->active = false;
+        pthread_cond_signal(&timer->cond); // Awakening
     }
-    return true;
+    pthread_mutex_unlock(&timer->mutex);
+
+    // Wait for termination
+    if (timer->has_thread) {
+        pthread_join(timer->thread, NULL);
+        timer->has_thread = false;
+    }
 }
 
-int get_time_left(Timer timer) {
-    return timer.initialized ? timer.time_left : -1;
+int timer_get_remaining(Timer *timer) {
+    if (!timer) return 0;
+    int remaining;
+    pthread_mutex_lock(&timer->mutex);
+    remaining = timer->time_left;
+    pthread_mutex_unlock(&timer->mutex);
+    return remaining;
+}
+
+bool timer_consume_tick(Timer* timer) {
+    if (!timer) return false;
+    bool tick = false;
+    pthread_mutex_lock(&timer->mutex);
+    if (timer->tick_event) {
+        tick = true;
+        timer->tick_event = false; // Reset flag
+    }
+    pthread_mutex_unlock(&timer->mutex);
+    return tick;
 }
