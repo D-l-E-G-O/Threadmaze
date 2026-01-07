@@ -26,3 +26,4 @@ int random_int(int min, int max);
 int clamp_int(int value, int min, int max);
 int get_terminal_width(void);
 int get_terminal_height(void);
+char read_char();
