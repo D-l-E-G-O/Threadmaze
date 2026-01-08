@@ -27,13 +27,14 @@ void show_options_menu(GameConfig *config) {
         printf("3. Time limit           [%d s]  (0 = OFF)   (Between %d and %d)\n", config->time_limit, MIN_TIME_LIMIT, MAX_TIME_LIMIT);
         printf("4. Hint duration        [%d s]  (0 = OFF)   (Between %d and %d)\n", config->hint_duration, MIN_HINT_DURATION, MAX_HINT_DURATION);
         printf("5. Mutation frequency   [%d s]  (0 = OFF)   (Between %d and %d)\n", config->mutation_interval, MIN_MUTATION_INTERVAL, MAX_MUTATION_INTERVAL);
+        printf("6. Mutation amount      [%d walls]          (Between %d and %d)\n", config->mutation_amount, MIN_MUTATION_AMOUNT, MAX_MUTATION_AMOUNT);
         printf("----------------\n");
-        printf("6. Up    [%c]\n", config->key_up);
-        printf("7. Down  [%c]\n", config->key_down);
-        printf("8. Left  [%c]\n", config->key_left);
-        printf("9. Right [%c]\n", config->key_right);
+        printf("7. Up    [%c]\n", config->key_up);
+        printf("8. Down  [%c]\n", config->key_down);
+        printf("9. Left  [%c]\n", config->key_left);
+        printf("10. Right [%c]\n", config->key_right);
         printf("----------------\n");
-        printf("10. SAVE AND GO BACK\n");
+        printf("11. SAVE AND GO BACK\n");
         printf("0. CANCEL\n");
         printf("Your choice : ");
 
@@ -61,11 +62,15 @@ void show_options_menu(GameConfig *config) {
                 printf("New mutation frequency : "); 
                 if(fgets(buf, 20, stdin)) config->mutation_interval = atoi(buf); 
                 break;
-            case 6: change_key(&config->key_up, "UP"); break;
-            case 7: change_key(&config->key_down, "DOWN"); break;
-            case 8: change_key(&config->key_left, "LEFT"); break;
-            case 9: change_key(&config->key_right, "RIGHT"); break;
-            case 10:
+            case 6:
+                printf("New mutation amount : "); 
+                if(fgets(buf, 20, stdin)) config->mutation_amount = atoi(buf); 
+                break;
+            case 7: change_key(&config->key_up, "UP"); break;
+            case 8: change_key(&config->key_down, "DOWN"); break;
+            case 9: change_key(&config->key_left, "LEFT"); break;
+            case 10: change_key(&config->key_right, "RIGHT"); break;
+            case 11:
                 config_save(config);
                 in_options = false;
                 break;

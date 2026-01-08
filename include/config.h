@@ -11,10 +11,13 @@
 #define MIN_TIME_LIMIT 0
 
 #define MAX_HINT_DURATION 60
-#define MIN_HINT_DURATION 1
+#define MIN_HINT_DURATION 0
 
 #define MAX_MUTATION_INTERVAL 60
 #define MIN_MUTATION_INTERVAL 0
+
+#define MAX_MUTATION_AMOUNT 20
+#define MIN_MUTATION_AMOUNT 1
 
 typedef struct GameConfig {
     // --- Maze Settings ---
@@ -25,6 +28,7 @@ typedef struct GameConfig {
     int time_limit;         // 0 = disabled
     int hint_duration;      // Duration of the hint in seconds
     int mutation_interval;  // Time in seconds between mutations (0 = disabled)
+    int mutation_amount;    // Number of walls to change during one mutation
 
     // --- Controls (Keybindings) ---
     char key_up;

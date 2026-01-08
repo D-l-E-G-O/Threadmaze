@@ -154,10 +154,12 @@ static bool update_game_state(GameContext *ctx) {
         // If timer reached 0
         if (timer_get_remaining(&ctx->mutation_timer) <= 0) {
             
-            // Perform mutation
-            maze_mutate(&ctx->maze);
+            // Perform mutation N times
+            for (int i = 0; i < ctx->config->mutation_amount; i++) {
+                maze_mutate(&ctx->maze);
+            }
             
-            // If Hint is active, it's now invalid because the maze changed!
+            // If Hint is active, it's now invalid because the maze changed
             // We must update the path.
             if (ctx->hint.active) {
                 hint_update(&ctx->hint, &ctx->maze, &ctx->player);
