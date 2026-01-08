@@ -7,11 +7,14 @@
 #define MAX_MAZE_HEIGHT get_terminal_height()/2 - 2
 #define MIN_MAZE_HEIGHT 1
 
-#define MAX_TIME_LIMIT 3599
+#define MAX_TIME_LIMIT 300
 #define MIN_TIME_LIMIT 0
 
-#define MAX_HINT_DURATION 3599
+#define MAX_HINT_DURATION 60
 #define MIN_HINT_DURATION 1
+
+#define MAX_MUTATION_INTERVAL 60
+#define MIN_MUTATION_INTERVAL 0
 
 typedef struct GameConfig {
     // --- Maze Settings ---
@@ -21,6 +24,7 @@ typedef struct GameConfig {
     // --- Gameplay Settings ---
     int time_limit;         // 0 = disabled
     int hint_duration;      // Duration of the hint in seconds
+    int mutation_interval;  // Time in seconds between mutations (0 = disabled)
 
     // --- Controls (Keybindings) ---
     char key_up;

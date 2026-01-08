@@ -42,9 +42,13 @@ static void game_context_init(GameContext *ctx, GameConfig *config) {
     player_init(&ctx->player, &ctx->maze);
 
     // Initialize Timers
-    // Note: We use the context's own hint_timer storage for the hint system
     hint_init(&ctx->hint, &ctx->hint_timer, config->hint_duration);
     timer_init(&ctx->main_timer, config->time_limit);
+    timer_init(&ctx->main_timer, config->time_limit);
+    timer_init(&ctx->mutation_timer, config->mutation_interval);
+    if (config->mutation_interval > 0) {
+        timer_start(&ctx->mutation_timer);
+    }
 
     // Setup input mode
     input_init();
@@ -61,6 +65,7 @@ static void game_context_free(GameContext *ctx) {
     timer_stop(&ctx->main_timer);
     hint_deactivate(&ctx->hint, &ctx->maze);
     hint_free(&ctx->hint);
+    timer_stop(&ctx->mutation_timer);
 
     maze_free(&ctx->maze);
     input_restore();
@@ -140,6 +145,26 @@ static bool update_game_state(GameContext *ctx) {
     if (ctx->hint.active) {
         if (timer_get_remaining(&ctx->hint_timer) <= 0) {
             hint_deactivate(&ctx->hint, &ctx->maze);
+            state_changed = true;
+        }
+    }
+
+    // 4. Check Mutation Timer
+    if (ctx->config->mutation_interval > 0) {
+        // If timer reached 0
+        if (timer_get_remaining(&ctx->mutation_timer) <= 0) {
+            
+            // Perform mutation
+            maze_mutate(&ctx->maze);
+            
+            // If Hint is active, it's now invalid because the maze changed!
+            // We must update the path.
+            if (ctx->hint.active) {
+                hint_update(&ctx->hint, &ctx->maze, &ctx->player);
+            }
+            
+            // Restart mutation timer
+            timer_start(&ctx->mutation_timer);
             state_changed = true;
         }
     }
