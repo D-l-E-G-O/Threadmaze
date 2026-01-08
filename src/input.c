@@ -10,7 +10,7 @@
 static struct termios oldt;
 static int old_flags;
 
-void init_input(void) {
+void input_init(void) {
     struct termios newt;
 
     // Save current terminal settings
@@ -26,7 +26,7 @@ void init_input(void) {
     fcntl(STDIN_FILENO, F_SETFL, old_flags | O_NONBLOCK);
 }
 
-void restore_input(void) {
+void input_restore(void) {
     // Restore blocking + terminal settings
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     fcntl(STDIN_FILENO, F_SETFL, old_flags);

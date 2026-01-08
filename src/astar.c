@@ -4,10 +4,10 @@
 #include "astar.h"
 #include "matrix.h"
 
-static int astar_get_neighbors(Maze* maze, CellCoord current, CellCoord* neighbors) {
+static int astar_get_neighbors(const Maze *maze, CellCoord current, CellCoord *neighbors) {
     int count = 0;
     int row = current.row, col = current.col;
-    Cell* c = &maze->cells[row][col];
+    Cell *c = &maze->cells[row][col];
 
     if (row > 0 && c->up) neighbors[count++] = (CellCoord){row-1, col};
     if (row < maze->height-1 && c->down) neighbors[count++] = (CellCoord){row+1, col};
@@ -17,7 +17,7 @@ static int astar_get_neighbors(Maze* maze, CellCoord current, CellCoord* neighbo
     return count;
 }
 
-static void astar_reconstruct_path(HeapNode* came_from, int width, CellCoord start, CellCoord end, AStarPath* path) {
+static void astar_reconstruct_path(HeapNode *came_from, int width, CellCoord start, CellCoord end, AStarPath *path) {
     path->size = 0;
     CellCoord current = end;
     while (!(current.row == start.row && current.col == start.col)) {
@@ -41,14 +41,14 @@ static void astar_reconstruct_path(HeapNode* came_from, int width, CellCoord sta
     }
 }
 
-bool astar_solve(Maze* maze, int start_row, int start_col, int end_row, int end_col, AStarPath* path_out, HeuristicFunc heuristic) {
+bool astar_solve(const Maze *maze, int start_row, int start_col, int end_row, int end_col, AStarPath *path_out, HeuristicFunc heuristic) {
     if (!maze || !path_out || !heuristic) return false;
 
     int width = maze->width;
     int height = maze->height;
 
-    bool** visited = init_bool_matrix(width, height);
-    HeapNode* came_from = malloc(sizeof(HeapNode) * width * height);
+    bool **visited = bool_matrix_init(width, height);
+    HeapNode *came_from = malloc(sizeof(HeapNode) * width * height);
     for (int i = 0; i < width*height; i++) came_from[i].row = came_from[i].col = -1;
 
     MinHeap heap;
@@ -85,17 +85,17 @@ bool astar_solve(Maze* maze, int start_row, int start_col, int end_row, int end_
     return false;
 }
 
-void init_astar_path(AStarPath* path, int capacity) {
+void astar_path_init(AStarPath *path, int capacity) {
     if (capacity <= 0) capacity = 16;
     path->cells = malloc(sizeof(CellCoord) * capacity);
     path->size = 0;
     path->capacity = capacity;
 }
 
-void astar_path_resize(AStarPath* path) {
+void astar_path_resize(AStarPath *path) {
     if (!path) return;
     path->capacity = path->capacity ? path->capacity * 2 : 16;
-    CellCoord* tmp = realloc(path->cells, sizeof(CellCoord) * path->capacity);
+    CellCoord *tmp = realloc(path->cells, sizeof(CellCoord) * path->capacity);
     if (!tmp) { 
         perror("realloc"); 
         exit(EXIT_FAILURE); 
@@ -103,7 +103,7 @@ void astar_path_resize(AStarPath* path) {
     path->cells = tmp;
 }
 
-void astar_cleanup(bool** visited, HeapNode* came_from, HeapNode* heap_data, int height) {
+void astar_cleanup(bool **visited, HeapNode *came_from, HeapNode *heap_data, int height) {
     if (visited) {
         for (int i = 0; i < height; i++) free(visited[i]);
         free(visited);

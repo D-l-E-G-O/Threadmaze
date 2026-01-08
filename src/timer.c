@@ -98,7 +98,7 @@ int timer_get_remaining(Timer *timer) {
     return remaining;
 }
 
-bool timer_consume_tick(Timer* timer) {
+bool timer_consume_tick(Timer *timer) {
     if (!timer) return false;
     bool tick = false;
     pthread_mutex_lock(&timer->mutex);

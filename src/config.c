@@ -72,7 +72,7 @@ void config_load(GameConfig *config) {
 }
 
 // --- Clamp Values ---
-void clamp_config_values(GameConfig *config) {
+void config_clamp_values(GameConfig *config) {
     int max_width = MAX_MAZE_WIDTH;
     int max_height = MAX_MAZE_HEIGHT;
     if (config->width < MIN_MAZE_WIDTH || config->width > max_width) config->width = max_width;

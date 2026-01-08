@@ -3,13 +3,13 @@
 #include <stdio.h>
 
 
-static void heap_swap(HeapNode* a, HeapNode* b) {
+static void heap_swap(HeapNode *a, HeapNode *b) {
     HeapNode tmp = *a; 
     *a = *b; 
     *b = tmp;
 }
 
-void heap_init(MinHeap* h, int initial_capacity) {
+void heap_init(MinHeap *h, int initial_capacity) {
     if (initial_capacity <= 0) initial_capacity = 64;
     h->data = malloc(sizeof(HeapNode) * initial_capacity);
     if (!h->data) { 
@@ -20,18 +20,18 @@ void heap_init(MinHeap* h, int initial_capacity) {
     h->capacity = initial_capacity;
 }
 
-void heap_free(MinHeap* h) {
+void heap_free(MinHeap *h) {
     free(h->data);
     h->data = NULL;
     h->size = 0;
     h->capacity = 0;
 }
 
-bool heap_empty(const MinHeap* h) {
+bool heap_empty(const MinHeap *h) {
     return h->size == 0;
 }
 
-void heap_push(MinHeap* h, HeapNode node) {
+void heap_push(MinHeap *h, HeapNode node) {
     if (h->size >= h->capacity) {
         h->capacity *= 2;
         h->data = realloc(h->data, sizeof(HeapNode) * h->capacity);
@@ -52,7 +52,7 @@ void heap_push(MinHeap* h, HeapNode node) {
     }
 }
 
-HeapNode heap_pop(MinHeap* h) {
+HeapNode heap_pop(MinHeap *h) {
     HeapNode top = h->data[0];
     h->data[0] = h->data[--h->size];
 

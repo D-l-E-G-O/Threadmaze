@@ -22,7 +22,7 @@ typedef struct {
  * @param player Pointer to the player structure.
  * @param maze Pointer to the maze.
  */
-void init_player(Player *player, Maze *maze);
+void player_init(Player *player, Maze *maze);
 
 /**
  * Moves the player in the specified direction if the move is valid.
@@ -30,7 +30,7 @@ void init_player(Player *player, Maze *maze);
  * @param direction The direction to move towards.
  * @param maze Pointer to the maze for collision checking.
  */
-void move_player(Player *player, Direction direction, Maze *maze);
+void player_move(Player *player, Direction direction, Maze *maze);
 
 /**
  * Checks if the player has reached the exit of the maze.

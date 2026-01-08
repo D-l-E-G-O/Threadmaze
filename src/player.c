@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 
-void init_player(Player *player, Maze *maze) {
+void player_init(Player *player, Maze *maze) {
     if (!player || !maze) return;
     player->x = 0;
     player->y = 0;
@@ -16,7 +16,7 @@ void init_player(Player *player, Maze *maze) {
     }
 }
 
-void move_player(Player *player, Direction direction, Maze *maze) {
+void player_move(Player *player, Direction direction, Maze *maze) {
     if (!player || !maze) return;
 
     int new_x = player->x;

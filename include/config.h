@@ -33,20 +33,20 @@ typedef struct GameConfig {
 /**
  * Sets the configuration with default values.
  */
-void config_set_defaults(GameConfig* config);
+void config_set_defaults(GameConfig *config);
 
 /**
  * Loads configuration or loads the default values if the config file doesn't exist.
  * Overwrites values in the config if they are found in the config file.
  */
-void config_load(GameConfig* config);
+void config_load(GameConfig *config);
 
 /**
  * Saves the current config in the config file.
  */
-void config_save(const GameConfig* config);
+void config_save(const GameConfig *config);
 
 /**
  * Clamps the config values to assert safety.
  */
-void clamp_config_values(GameConfig *config);
+void config_clamp_values(GameConfig *config);

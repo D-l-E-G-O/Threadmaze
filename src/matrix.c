@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include "matrix.h"
 
-bool** init_bool_matrix(int width, int height) {
+bool **bool_matrix_init(int width, int height) {
     if (width <= 0 || height <= 0) return NULL;
-    bool** matrix = calloc(height, sizeof(*matrix));
+    bool **matrix = calloc(height, sizeof(*matrix));
     if (!matrix) {
         perror("calloc"); 
         exit(EXIT_FAILURE); 
@@ -16,14 +16,14 @@ bool** init_bool_matrix(int width, int height) {
         if (!matrix[i]) {
             perror("malloc");   
             // cleanup on allocation failure
-            free_bool_matrix(matrix, i);
+            bool_matrix_free(matrix, i);
             exit(EXIT_FAILURE);
         }
     }
     return matrix;
 }
 
-void free_bool_matrix(bool** matrix, int height) {
+void bool_matrix_free(bool **matrix, int height) {
     if (!matrix) return;
     for (int i = 0; i < height; i++) {
         free(matrix[i]);

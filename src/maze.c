@@ -5,7 +5,7 @@
 #include "matrix.h"
 
 
-void init_maze(Maze* maze, int width, int height) {
+void maze_init(Maze *maze, int width, int height) {
     Cell **cells = malloc(sizeof(Cell*) * height);
     if (!cells) { 
         perror("malloc"); 
@@ -23,7 +23,7 @@ void init_maze(Maze* maze, int width, int height) {
     maze->height = height;
 }
 
-void free_maze(Maze* maze) {
+void maze_free(Maze *maze) {
     if (!maze || !maze->cells) return;
     for (int i = 0; i < maze->height; i++) {
         if (maze->cells[i] != NULL) {
@@ -37,7 +37,7 @@ void free_maze(Maze* maze) {
     maze->height = 0;
 }
 
-void fill_maze(Maze* maze) {
+void maze_fill(Maze *maze) {
     for (int i = 0; i < maze->height; i++) {
         for (int j = 0; j < maze->width; j++) {
             maze->cells[i][j].up = false;
@@ -49,7 +49,7 @@ void fill_maze(Maze* maze) {
     }
 }
 
-void print_maze(const Maze* maze) {
+void maze_display(const Maze *maze) {
     int ascii_height = 2 * maze->height + 1;
     int ascii_width  = 2 * maze->width + 1;
 
@@ -95,30 +95,30 @@ void print_maze(const Maze* maze) {
     }
 }
 
-bool is_cell_valid(Maze maze, int old_x, int old_y, int new_x, int new_y) {
-    bool x_valid = 0 <= new_x && new_x < maze.width;
-    bool y_valid = 0 <= new_y && new_y < maze.height;
+bool is_cell_valid(const Maze *maze, int old_x, int old_y, int new_x, int new_y) {
+    bool x_valid = 0 <= new_x && new_x < maze->width;
+    bool y_valid = 0 <= new_y && new_y < maze->height;
     if (x_valid && y_valid) {
         bool is_not_blocked = false;
         if (old_x < new_x) { // Moved right
-            is_not_blocked = maze.cells[old_y][old_x].right;
+            is_not_blocked = maze->cells[old_y][old_x].right;
         }
         else if (old_x > new_x) { // Moved left
-            is_not_blocked = maze.cells[old_y][old_x].left;
+            is_not_blocked = maze->cells[old_y][old_x].left;
         }
         if (old_y < new_y) { // Moved down
-            is_not_blocked = maze.cells[old_y][old_x].down;
+            is_not_blocked = maze->cells[old_y][old_x].down;
         }
         else if (old_y > new_y) { // Moved up
-            is_not_blocked = maze.cells[old_y][old_x].up;
+            is_not_blocked = maze->cells[old_y][old_x].up;
         }
         return is_not_blocked;
     }
     return false;
 }
 
-bool move_cell(Maze* maze, int old_x, int old_y, int new_x, int new_y) {
-    if (is_cell_valid(*maze, old_x, old_y, new_x, new_y)) {
+bool move_cell(Maze *maze, int old_x, int old_y, int new_x, int new_y) {
+    if (is_cell_valid(maze, old_x, old_y, new_x, new_y)) {
         maze->cells[new_y][new_x].symbol = maze->cells[old_y][old_x].symbol;
         maze->cells[old_y][old_x].symbol = CELL;
         return true;
@@ -126,7 +126,7 @@ bool move_cell(Maze* maze, int old_x, int old_y, int new_x, int new_y) {
     return false;
 }
 
-void carve_passage(Maze* maze, int r1, int c1, int r2, int c2) {
+void carve_passage(Maze *maze, int r1, int c1, int r2, int c2) {
     // bounds check
     if (r1 < 0 || r1 >= maze->height || r2 < 0 || r2 >= maze->height ||
         c1 < 0 || c1 >= maze->width  || c2 < 0 || c2 >= maze->width) {
@@ -150,15 +150,15 @@ void carve_passage(Maze* maze, int r1, int c1, int r2, int c2) {
     }
 }
 
-void generate_maze_wilson(Maze* maze) {
+void generate_maze_wilson(Maze *maze) {
     if (!maze) return;
-    fill_maze(maze);
+    maze_fill(maze);
 
     int width = maze->width;
     int height = maze->height;
 
     // visited[row][col] : is cell already in the final maze
-    bool **visited = init_bool_matrix(width, height); // init_bool_matrix(width,height) returns [height][width]
+    bool **visited = bool_matrix_init(width, height); // init_bool_matrix(width,height) returns [height][width]
     if (!visited) { 
         perror("init_bool_matrix"); 
         exit(EXIT_FAILURE); 
@@ -177,7 +177,7 @@ void generate_maze_wilson(Maze* maze) {
     const int dir_col[4] = {0, 0, -1, 1};
 
     // main loop until all visited
-    while (!all_cells_visited(visited, width, height)) {
+    while (!all_cells_visited((const bool**)visited, width, height)) {
 
         // pick a random cell not yet in the tree
         int cell_row, cell_col;
@@ -188,12 +188,12 @@ void generate_maze_wilson(Maze* maze) {
 
         // init path structure (path uses row/col)
         Path path;
-        init_path(&path, width, height, (width * height) / 4 + 4);
+        path_init(&path, width, height, (width * height) / 4 + 4);
 
         // start random walk from (cell_row,cell_col)
-        int push_res = push_path(&path, cell_row, cell_col);
+        int push_res = path_push(&path, cell_row, cell_col);
         if (push_res < -1) { // invalid (shouldn't happen)
-            free_path(&path);
+            path_free(&path);
             break;
         }
 
@@ -207,7 +207,7 @@ void generate_maze_wilson(Maze* maze) {
             next_row = clamp_int(next_row, 0, height - 1);
             next_col = clamp_int(next_col, 0, width - 1);
 
-            int index = push_path(&path, next_row, next_col);
+            int index = path_push(&path, next_row, next_col);
             switch (index) {
                 case ERROR:
                     perror("push_path");
@@ -219,7 +219,7 @@ void generate_maze_wilson(Maze* maze) {
                     break;
                 default:
                     // we hit a cycle: truncate after idx
-                    truncate_path(&path, index);
+                    path_truncate(&path, index);
                     // set current position to the last element in path
                     cell_row = path.cells[path.size - 1].row;
                     cell_col = path.cells[path.size - 1].col;
@@ -243,8 +243,8 @@ void generate_maze_wilson(Maze* maze) {
             visited[lr][lc] = true;
         }
 
-        free_path(&path);
+        path_free(&path);
     }
 
-    free_bool_matrix(visited, height);
+    bool_matrix_free(visited, height);
 }

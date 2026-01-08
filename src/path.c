@@ -3,7 +3,7 @@
 #include "path.h"
 #include "matrix.h"
 
-void init_path(Path* path, int width, int height, int initial_capacity) {
+void path_init(Path *path, int width, int height, int initial_capacity) {
     if (initial_capacity <= 0) initial_capacity = 16;
     path->cells = malloc(sizeof(CellCoord) * initial_capacity);
     if (!path->cells) { 
@@ -14,20 +14,20 @@ void init_path(Path* path, int width, int height, int initial_capacity) {
     path->capacity = initial_capacity;
     path->width = width;
     path->height = height;
-    path->visited_cells = init_bool_matrix(width, height);
+    path->visited_cells = bool_matrix_init(width, height);
 }
 
-void free_path(Path* path) {
+void path_free(Path *path) {
     if (!path) return;
     if (path->cells) free(path->cells);
-    if (path->visited_cells) free_bool_matrix(path->visited_cells, path->height);
+    if (path->visited_cells) bool_matrix_free(path->visited_cells, path->height);
     path->cells = NULL;
     path->visited_cells = NULL;
     path->size = 0;
     path->capacity = 0;
 }
 
-void clear_path(Path* path) {
+void clear_path(Path *path) {
     if (!path) return;
     for (int i = 0; i < path->height; i++)
         for (int j = 0; j < path->width; j++)
@@ -35,7 +35,7 @@ void clear_path(Path* path) {
     path->size = 0;
 }
 
-int push_path(Path* path, int row, int col) {
+int path_push(Path *path, int row, int col) {
     if (!path) return ERROR;
     // bounds check
     if (row < 0 || row >= path->height || col < 0 || col >= path->width) return ERROR;
@@ -71,7 +71,7 @@ int push_path(Path* path, int row, int col) {
     return NO_CYCLE;
 }
 
-void truncate_path(Path* path, int index) {
+void path_truncate(Path *path, int index) {
     if (!path) return;
     if (index < 0) {
         clear_path(path);
@@ -86,15 +86,15 @@ void truncate_path(Path* path, int index) {
     path->size = index + 1;
 }
 
-void set_path_cells(Path* path, CellCoord* new_cells, int new_size) {
+void set_path_cells(Path *path, CellCoord *new_cells, int new_size) {
     if (!path || !new_cells || new_size <= 0) return;
     clear_path(path);
     for (int i = 0; i < new_size; i++) {
-        push_path(path, new_cells[i].row, new_cells[i].col);
+        path_push(path, new_cells[i].row, new_cells[i].col);
     }
 }
 
-bool all_cells_visited(bool **visited, int width, int height) {
+bool all_cells_visited(const bool **visited, int width, int height) {
     if (!visited) return false;
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {

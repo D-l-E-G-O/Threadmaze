@@ -8,6 +8,6 @@ typedef struct {
     pthread_t thread;
 } Enemy;
 
-void init_enemy(Enemy* enemy, char** maze);
-void* enemy_loop(void* arg);
-int check_collision(int player_x, int player_y, Enemy* enemies, int count);
+void enemy_init(Enemy *enemy, char **maze);
+void *enemy_loop(void *arg);
+int enemy_check_collision(int player_x, int player_y, Enemy *enemies, int count);

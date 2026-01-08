@@ -38,7 +38,7 @@ void hint_generate_path(Maze *maze, Player *player, AStarPath *path) {
 
     // Reset path if needed (or reallocate if NULL)
     if (path->cells == NULL) {
-        init_astar_path(path, maze->width * maze->height);
+        astar_path_init(path, maze->width * maze->height);
     } else {
         path->size = 0; 
     }

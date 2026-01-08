@@ -5,7 +5,7 @@ typedef struct {
     bool down;
     bool left;
     bool right;
-    char* symbol;
+    char *symbol;
 } Cell;
 
 typedef struct {

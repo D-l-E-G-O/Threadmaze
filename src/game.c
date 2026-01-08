@@ -1,8 +1,7 @@
-#define _DEFAULT_SOURCE // for usleep because of deprecation
 #define _XOPEN_SOURCE 700
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h> // for usleep
+#include <time.h> // For nanosleep
 #include "game.h"
 #include "context.h"
 #include "render.h"
@@ -38,9 +37,9 @@ static void game_context_init(GameContext *ctx, GameConfig *config) {
     ctx->victory = false;
 
     // Initialize entities
-    init_maze(&ctx->maze, config->width, config->height);
+    maze_init(&ctx->maze, config->width, config->height);
     generate_maze_wilson(&ctx->maze);
-    init_player(&ctx->player, &ctx->maze);
+    player_init(&ctx->player, &ctx->maze);
 
     // Initialize Timers
     // Note: We use the context's own hint_timer storage for the hint system
@@ -48,7 +47,7 @@ static void game_context_init(GameContext *ctx, GameConfig *config) {
     timer_init(&ctx->main_timer, config->time_limit);
 
     // Setup input mode
-    init_input();
+    input_init();
 }
 
 /**
@@ -63,8 +62,8 @@ static void game_context_free(GameContext *ctx) {
     hint_deactivate(&ctx->hint, &ctx->maze);
     hint_free(&ctx->hint);
 
-    free_maze(&ctx->maze);
-    restore_input();
+    maze_free(&ctx->maze);
+    input_restore();
 }
 
 /**
@@ -95,7 +94,7 @@ static bool process_input(GameContext *ctx) {
         Direction dir = get_direction_from_input(input, ctx->config);
         if (dir != DIR_NONE) {
             // 1. Move the player first
-            move_player(&ctx->player, dir, &ctx->maze);
+            player_move(&ctx->player, dir, &ctx->maze);
 
             // 2. If hint is active, just update the path (don't restart timer)
             if (ctx->hint.active) {
@@ -179,6 +178,11 @@ void game_start(GameConfig *config) {
     // Initial render
     render_game(&ctx);
 
+    // Setup nanosleep structure for 10ms
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 10 * 1000000; // 10 milliseconds
+
     // 2. Game Loop
     while (ctx.is_running) {
         bool needs_render = false;
@@ -190,8 +194,8 @@ void game_start(GameConfig *config) {
             render_game(&ctx);
         }
 
-        // CPU Saver (approx 60-100 checks per second is enough for this type of game)
-        usleep(10000); 
+        // CPU Saver : Sleep for 10ms
+        nanosleep(&ts, NULL);
     }
 
     // 3. End Game Screen
