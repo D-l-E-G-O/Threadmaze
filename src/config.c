@@ -12,6 +12,8 @@ void config_set_defaults(GameConfig *config) {
     config->height = MAX_MAZE_HEIGHT;
     config->time_limit = 0;
     config->hint_duration = 2;
+    config->mutation_interval = 5;
+    config->mutation_amount = 1;
 
     // Default Controls (WASD/ZQSD friendly defaults, or specific)
     config->key_up    = 'z';
@@ -29,6 +31,8 @@ void config_save(const GameConfig *config) {
     fprintf(f, "HEIGHT=%d\n", config->height);
     fprintf(f, "TIME=%d\n", config->time_limit);
     fprintf(f, "HINT=%d\n", config->hint_duration);
+    fprintf(f, "MUTATION_FREQUENCY=%d\n", config->mutation_interval);
+    fprintf(f, "MUTATION_AMOUNT=%d\n", config->mutation_amount);
     fprintf(f, "KEY_UP=%c\n", config->key_up);
     fprintf(f, "KEY_DOWN=%c\n", config->key_down);
     fprintf(f, "KEY_LEFT=%c\n", config->key_left);
@@ -59,6 +63,8 @@ void config_load(GameConfig *config) {
             else if (strcmp(key_str, "HEIGHT") == 0) config->height = val_int;
             else if (strcmp(key_str, "TIME") == 0) config->time_limit = val_int;
             else if (strcmp(key_str, "HINT") == 0) config->hint_duration = val_int;
+            else if (strcmp(key_str, "MUTATION_FREQUENCY") == 0) config->mutation_interval = val_int;
+            else if (strcmp(key_str, "MUTATION_AMOUNT") == 0) config->mutation_amount = val_int;
             else if (strcmp(key_str, "KEY_UP") == 0) config->key_up = val_char;
             else if (strcmp(key_str, "KEY_DOWN") == 0) config->key_down = val_char;
             else if (strcmp(key_str, "KEY_LEFT") == 0) config->key_left = val_char;
@@ -76,4 +82,6 @@ void config_clamp_values(GameConfig *config) {
     if (config->height < MIN_MAZE_HEIGHT || config->height > max_height) config->height = max_height;
     config->time_limit = clamp_int(config->time_limit, MIN_TIME_LIMIT, MAX_TIME_LIMIT);
     config->hint_duration = clamp_int(config->hint_duration, MIN_HINT_DURATION, MAX_HINT_DURATION);
+    config->mutation_interval = clamp_int(config->mutation_interval, MIN_MUTATION_INTERVAL, MAX_MUTATION_INTERVAL);
+    config->mutation_amount = clamp_int(config->mutation_amount, MIN_MUTATION_AMOUNT, MAX_MUTATION_AMOUNT);
 }

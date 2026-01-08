@@ -81,3 +81,10 @@ void carve_passage(Maze *maze, int r1, int c1, int r2, int c2);
  * @param maze Pointer to the initialized maze structure.
  */
 void generate_maze_wilson(Maze *maze);
+
+/**
+ * Mutates the maze by swapping a wall with a passage while maintaining connectivity.
+ * This ensures the maze remains "perfect" (no loops, no isolated areas).
+ * @param maze Pointer to the maze structure.
+ */
+void maze_mutate(Maze *maze);

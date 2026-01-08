@@ -56,3 +56,9 @@ int get_terminal_height(void);
  * @return The character read.
  */
 char read_char();
+
+/**
+ * Reads a line from stdin and converts it to an integer.
+ * @return The integer entered by the user, or 0 if invalid.
+ */
+int read_int(void);

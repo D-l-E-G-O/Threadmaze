@@ -30,3 +30,10 @@ char read_char() {
     return 0;
 }
 
+int read_int(void) {
+    char buf[64];
+    if (fgets(buf, sizeof(buf), stdin)) {
+        return atoi(buf);
+    }
+    return 0;
+}

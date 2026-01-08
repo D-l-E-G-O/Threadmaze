@@ -3,6 +3,7 @@
 #include <time.h>
 #include "maze.h"
 #include "matrix.h"
+#include "astar.h"
 
 void maze_init(Maze *maze, int width, int height) {
     Cell **cells = malloc(sizeof(Cell*) * height);
@@ -246,4 +247,76 @@ void generate_maze_wilson(Maze *maze) {
     }
 
     bool_matrix_free(visited, height);
+}
+
+void maze_mutate(Maze *maze) {
+    if (!maze) return;
+
+    // Try a few times to find a valid mutation candidate
+    // (A wall that separates two connected cells)
+    for (int attempts = 0; attempts < 20; attempts++) {
+        int r = random_int(0, maze->height - 1);
+        int c = random_int(0, maze->width - 1);
+        
+        // Pick a random direction (0: up, 1: down, 2: left, 3: right)
+        int dir = random_int(0, 3);
+        int nr = r, nc = c;
+        bool has_wall = false;
+
+        // Check bounds and wall existence
+        if (dir == 0) { nr--; has_wall = !maze->cells[r][c].up; }
+        else if (dir == 1) { nr++; has_wall = !maze->cells[r][c].down; }
+        else if (dir == 2) { nc--; has_wall = !maze->cells[r][c].left; }
+        else if (dir == 3) { nc++; has_wall = !maze->cells[r][c].right; }
+
+        // If out of bounds or NO wall there (already open), skip
+        if (nr < 0 || nr >= maze->height || nc < 0 || nc >= maze->width || !has_wall) {
+            continue;
+        }
+
+        // 1. Find the existing path between (r,c) and (nr,nc) BEFORE removing the wall
+        AStarPath path;
+        astar_path_init(&path, maze->width * maze->height);
+        
+        // Use Manhattan heuristic
+        if (astar_solve(maze, r, c, nr, nc, &path, astar_manhattan)) {
+            // Path found! It has at least 2 cells (start and end).
+            // We need to pick a random "edge" in this path to build a NEW wall.
+            // An edge is between path.cells[i] and path.cells[i+1].
+            
+            if (path.size >= 2) {
+                // Pick a random connection to block along the path
+                int cut_idx = random_int(0, path.size - 2);
+                int br = path.cells[cut_idx].row;
+                int bc = path.cells[cut_idx].col;
+                int b_next_r = path.cells[cut_idx + 1].row;
+                int b_next_c = path.cells[cut_idx + 1].col;
+
+                // 2. Build the new wall
+                // Note: We "uncarve" passage. Logic is inverse of carve_passage.
+                if (b_next_r == br - 1) { // Up
+                    maze->cells[br][bc].up = false;
+                    maze->cells[b_next_r][b_next_c].down = false;
+                } else if (b_next_r == br + 1) { // Down
+                    maze->cells[br][bc].down = false;
+                    maze->cells[b_next_r][b_next_c].up = false;
+                } else if (b_next_c == bc - 1) { // Left
+                    maze->cells[br][bc].left = false;
+                    maze->cells[b_next_r][b_next_c].right = false;
+                } else if (b_next_c == bc + 1) { // Right
+                    maze->cells[br][bc].right = false;
+                    maze->cells[b_next_r][b_next_c].left = false;
+                }
+
+                // 3. Remove the chosen wall (r,c) <-> (nr,nc)
+                carve_passage(maze, r, c, nr, nc);
+                
+                // Cleanup and exit success
+                free(path.cells);
+                return;
+            }
+        }
+        
+        free(path.cells);
+    }
 }

@@ -16,8 +16,9 @@ typedef struct {
     Hint hint;
     
     // Timers
-    Timer main_timer;
-    Timer hint_timer; // Dedicated timer storage for the hint system
+    Timer main_timer;       // Maze timer
+    Timer hint_timer;       // Dedicated timer storage for the hint system
+    Timer mutation_timer;   // Dedicated timer storage for the mutation system
     
     // Configuration & State
     GameConfig *config; // Pointer to the active configuration (read-only mostly)
