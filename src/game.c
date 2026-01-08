@@ -77,6 +77,12 @@ static void game_context_free(GameContext *ctx) {
  * @return true if the game state changed (requiring a render), false otherwise.
  */
 static bool process_input(GameContext *ctx) {
+    // Check for Signal Interruption first
+    if (stop_requested) {
+        ctx->is_running = false;
+        return false;
+    }
+
     char input = get_input_non_blocking();
     if (input == 0) return false;
 
@@ -212,6 +218,12 @@ void game_start(GameConfig *config) {
 
     // 2. Game Loop
     while (ctx.is_running) {
+        // IMMEDIATE CHECK: If CTRL+C was pressed during the sleep or render
+        if (stop_requested) {
+            ctx.is_running = false;
+            break; // Exit loop immediately to proceed to cleanup
+        }
+
         bool needs_render = false;
 
         if (process_input(&ctx)) needs_render = true;
@@ -222,6 +234,8 @@ void game_start(GameConfig *config) {
         }
 
         // CPU Saver : Sleep for 10ms
+        // If nanosleep is interrupted by a signal, it returns -1 and sets errno to EINTR.
+        // We don't strictly need to handle it because the loop will check stop_requested right after.
         nanosleep(&ts, NULL);
     }
 
@@ -229,11 +243,16 @@ void game_start(GameConfig *config) {
     // Clear/Stop timers before final print
     timer_stop(&ctx.main_timer);
     
-    int final_time = (config->time_limit > 0) ? timer_get_remaining(&ctx.main_timer) : 0;
-    
-    // Final render to ensure user sees the end state
-    render_game(&ctx); 
-    print_game_result(ctx.victory, config->time_limit, final_time);
+
+    // Only print result if it wasn't a forced quit
+    if (!stop_requested) {
+        int final_time = (config->time_limit > 0) ? timer_get_remaining(&ctx.main_timer) : 0;
+        // Final render to ensure user sees the end state
+        render_game(&ctx); 
+        print_game_result(ctx.victory, config->time_limit, final_time);
+    } else {
+        printf("\n" YELLOW "Game interrupted by user. Exiting..." RESET "\n");
+    }
 
     // 4. Cleanup
     game_context_free(&ctx);

@@ -7,9 +7,14 @@
 #include "menu.h"
 
 int main(int argc, char *argv[]) {
+    // 1. Setup Global Signal Handler
+    setup_signal_handler();
+
+    // 2. Load Config
     GameConfig config;
     config_load(&config);
 
+    // Args manager
     int opt;
     while ((opt = getopt(argc, argv, "w:h:t:")) != -1) {
         switch (opt) {
@@ -34,11 +39,20 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
 
-    // Display the menu
+    // 3. Main Menu Loop
     if (run_main_menu(&config)) {
-        // Start the game with the config
-        game_start(&config); 
+        // Security check
+        if (!stop_requested) {
+            // Start the game with the config
+            game_start(&config);
+        } 
     }
+
+    // End message
+    if (stop_requested) {
+        printf("\n" YELLOW "Goodbye!" RESET "\n");
+    }
+
     return EXIT_SUCCESS;
 }
 

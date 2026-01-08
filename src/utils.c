@@ -1,6 +1,26 @@
+#define _XOPEN_SOURCE 700
 #include "utils.h"
 #include <sys/ioctl.h>
 
+// Definition of the global variable
+volatile sig_atomic_t stop_requested = 0;
+
+static void handle_sigint(int sig) {
+    (void)sig;
+    stop_requested = 1;
+}
+
+void setup_signal_handler(void) {
+    struct sigaction sa;
+    sa.sa_handler = handle_sigint;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    
+    if (sigaction(SIGINT, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+}
 
 int random_int(int min, int max) {
     return min + rand() % (max - min + 1);

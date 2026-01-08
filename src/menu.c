@@ -19,7 +19,7 @@ void change_key(char *key_to_change, const char *name) {
 
 void show_options_menu(GameConfig *config) {
     bool in_options = true;
-    while (in_options) {
+    while (in_options && !stop_requested) {
         system("clear");
         printf(BOLD "=== OPTIONS ===\n" RESET);
         printf("1. Maze width           [%d]    (0 = AUTO)  (Between %d and %d)\n", config->width, MIN_MAZE_WIDTH, MAX_MAZE_WIDTH);
@@ -39,6 +39,9 @@ void show_options_menu(GameConfig *config) {
         printf("Your choice : ");
 
         int choice = read_int();
+        // If CTRL+C was pressed during read_int/fgets :
+        if (stop_requested) break;
+
         char buf[20];
 
         switch(choice) {
@@ -87,6 +90,8 @@ void show_options_menu(GameConfig *config) {
 
 bool run_main_menu(GameConfig *config) {
     while(true) {
+        if (stop_requested) return false;
+
         system("clear");
         printf(BOLDBLUE "=== THREADMAZE ===\n" RESET);
         printf("1. Play\n");
@@ -95,6 +100,9 @@ bool run_main_menu(GameConfig *config) {
         printf("\nChoice : ");
         
         char c = read_char();
+
+        if (stop_requested) return false;
+
         if (c == '1') return true;
         if (c == '2') show_options_menu(config);
         if (c == '3') return false;

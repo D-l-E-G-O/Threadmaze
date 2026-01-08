@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define RESET   "\033[0m"
 
@@ -21,6 +22,15 @@
 #define BOLDGREEN   "\033[1m\033[32m"
 #define BOLDYELLOW  "\033[1m\033[33m"
 #define BOLDBLUE    "\033[1m\033[34m"
+
+// Global flag to signal an interruption request (CTRL+C)
+// "volatile sig_atomic_t" is the only type safe to read/write in a signal handler.
+extern volatile sig_atomic_t stop_requested;
+
+/**
+ * Sets up the SIGINT (CTRL+C) signal handler globally.
+ */
+void setup_signal_handler(void);
 
 /**
  * Generates a random integer between min and max (inclusive).
