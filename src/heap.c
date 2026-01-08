@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
+/**
+ * Swaps two nodes in the heap array.
+ * @param a Pointer to the first node.
+ * @param b Pointer to the second node.
+ */
 static void heap_swap(HeapNode *a, HeapNode *b) {
     HeapNode tmp = *a; 
     *a = *b; 

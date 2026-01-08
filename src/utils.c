@@ -22,9 +22,6 @@ int get_terminal_height(void) {
     return (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1) ? 24 : w.ws_row;
 }
 
-/**
- * Safely reads and returns a char.
- */
 char read_char() {
     char buf[10];
     if (fgets(buf, sizeof(buf), stdin)) {

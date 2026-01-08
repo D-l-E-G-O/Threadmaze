@@ -3,9 +3,6 @@
 #include "menu.h"
 #include "utils.h"
 
-/**
- * Sub-menu to change a key.
- */
 void change_key(char *key_to_change, const char *name) {
     printf("Press the new key for %s : ", name);
     char c = read_char();
@@ -20,9 +17,6 @@ void change_key(char *key_to_change, const char *name) {
     read_char(); 
 }
 
-/**
- * Prints the options menu and allows the player the change the settings.
- */
 void show_options_menu(GameConfig *config) {
     bool in_options = true;
     while (in_options) {
@@ -81,10 +75,6 @@ void show_options_menu(GameConfig *config) {
     }
 }
 
-/**
- * Prints the main menu.
- * Returns true if the player wants to play, false if he wants to quit.
- */
 bool run_main_menu(GameConfig *config) {
     while(true) {
         system("clear");

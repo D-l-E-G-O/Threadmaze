@@ -21,7 +21,6 @@ void config_set_defaults(GameConfig *config) {
     config->key_hint  = 'h';
 }
 
-// --- Save ---
 void config_save(const GameConfig *config) {
     FILE* f = fopen(CONFIG_FILE, "w");
     if (!f) return;
@@ -39,7 +38,6 @@ void config_save(const GameConfig *config) {
     fclose(f);
 }
 
-// --- Load ---
 void config_load(GameConfig *config) {
     config_set_defaults(config); // We start with the default values
     
@@ -71,7 +69,6 @@ void config_load(GameConfig *config) {
     fclose(f);
 }
 
-// --- Clamp Values ---
 void config_clamp_values(GameConfig *config) {
     int max_width = MAX_MAZE_WIDTH;
     int max_height = MAX_MAZE_HEIGHT;

@@ -4,7 +4,6 @@
 #include "maze.h"
 #include "matrix.h"
 
-
 void maze_init(Maze *maze, int width, int height) {
     Cell **cells = malloc(sizeof(Cell*) * height);
     if (!cells) { 

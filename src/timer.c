@@ -4,6 +4,12 @@
 #include <time.h>       // For timespec
 #include <errno.h>      // For ETIMEDOUT
 
+/**
+ * The routine executed by the timer thread.
+ * Handles the countdown and thread synchronization.
+ * @param arg Pointer to the Timer structure.
+ * @return NULL.
+ */
 static void *timer_thread_routine(void *arg) {
     Timer *timer = (Timer*)arg;
     

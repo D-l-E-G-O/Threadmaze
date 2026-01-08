@@ -4,6 +4,13 @@
 #include "astar.h"
 #include "matrix.h"
 
+/**
+ * Identifies valid neighbors for a given cell in the maze.
+ * @param maze Pointer to the maze structure.
+ * @param current The coordinates of the current cell.
+ * @param neighbors Array to store the found neighbors.
+ * @return The number of valid neighbors found.
+ */
 static int astar_get_neighbors(const Maze *maze, CellCoord current, CellCoord *neighbors) {
     int count = 0;
     int row = current.row, col = current.col;
@@ -17,6 +24,14 @@ static int astar_get_neighbors(const Maze *maze, CellCoord current, CellCoord *n
     return count;
 }
 
+/**
+ * Reconstructs the path from end to start using the parent pointers.
+ * @param came_from Array containing parent information for each node.
+ * @param width Width of the maze (used for index calculation).
+ * @param start The starting coordinate.
+ * @param end The ending coordinate.
+ * @param path Pointer to the AStarPath structure to fill.
+ */
 static void astar_reconstruct_path(HeapNode *came_from, int width, CellCoord start, CellCoord end, AStarPath *path) {
     path->size = 0;
     CellCoord current = end;

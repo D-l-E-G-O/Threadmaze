@@ -31,22 +31,28 @@ typedef struct GameConfig {
 } GameConfig;
 
 /**
- * Sets the configuration with default values.
+ * Sets default values for the game configuration.
+ * @param config Pointer to the configuration structure.
  */
 void config_set_defaults(GameConfig *config);
 
 /**
- * Loads configuration or loads the default values if the config file doesn't exist.
- * Overwrites values in the config if they are found in the config file.
+ * Loads the game configuration from a file.
+ * Applies default values if the file cannot be read.
+ * @param config Pointer to the configuration structure to populate.
+ * @param filename The path to the configuration file.
  */
 void config_load(GameConfig *config);
 
 /**
- * Saves the current config in the config file.
+ * Saves the current game configuration to a file.
+ * @param config Pointer to the configuration structure (read-only).
+ * @param filename The path to the configuration file.
  */
 void config_save(const GameConfig *config);
 
 /**
- * Clamps the config values to assert safety.
+ * Ensures all configuration values are within valid ranges.
+ * @param config Pointer to the configuration structure.
  */
 void config_clamp_values(GameConfig *config);
