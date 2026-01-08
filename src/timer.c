@@ -57,6 +57,11 @@ void timer_init(Timer *timer, int seconds) {
 
 bool timer_start(Timer *timer) {
     if (!timer) return false;
+
+    // Safety check: Don't start if time is invalid
+    if (timer->initial_time <= 0) {
+        return false;
+    }
     
     timer_stop(timer); // Ensure it's not already running
 
