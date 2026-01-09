@@ -43,6 +43,8 @@ int main(int argc, char *argv[]) {
     if (run_main_menu(&config)) {
         // Security check
         if (!stop_requested) {
+            // Other security check
+            config_clamp_values(&config);
             // Start the game with the config
             game_start(&config);
         } 

@@ -5,6 +5,7 @@
 #include <signal.h>
 
 #define RESET   "\033[0m"
+#define CLEAR   "\033[H\033[2J\033[3J" // ANSI escape code equivalent to system("clear");
 
 // Regular Colors
 #define RED     "\033[31m"
@@ -22,6 +23,7 @@
 #define BOLDGREEN   "\033[1m\033[32m"
 #define BOLDYELLOW  "\033[1m\033[33m"
 #define BOLDBLUE    "\033[1m\033[34m"
+#define BOLDMAGENTA "\033[1m\033[35m"
 
 // Global flag to signal an interruption request (CTRL+C)
 // "volatile sig_atomic_t" is the only type safe to read/write in a signal handler.

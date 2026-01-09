@@ -49,52 +49,6 @@ void maze_fill(Maze *maze) {
     }
 }
 
-void maze_display(const Maze *maze) {
-    int ascii_height = 2 * maze->height + 1;
-    int ascii_width  = 2 * maze->width + 1;
-
-    for (int i = 0; i < ascii_height; i++) {
-        for (int j = 0; j < ascii_width; j++) {
-            // Exterior walls
-            if (i == 0 || j == 0 || i == ascii_height - 1 || j == ascii_width - 1) {
-                printf(WALL);
-                continue;
-            }
-
-            // Coordinates in the logical maze
-            int cell_col = i / 2;
-            int cell_row = j / 2;
-
-            if (i % 2 == 1 && j % 2 == 1) {
-                // Cell
-                printf("%s", maze->cells[cell_col][cell_row].symbol);
-            }
-            else if (i % 2 == 1 && j % 2 == 0) {
-                // Vertical wall between 2 cells
-                Cell left  = maze->cells[cell_col][cell_row - 1];
-                Cell right = maze->cells[cell_col][cell_row];
-                if (left.right && right.left)
-                    printf(SPACE);
-                else
-                    printf(WALL);
-            }
-            else if (i % 2 == 0 && j % 2 == 1) {
-                // Horizontal wall between 2 cells
-                Cell top = maze->cells[cell_col - 1][cell_row];
-                Cell bottom = maze->cells[cell_col][cell_row];
-                if (top.down && bottom.up)
-                    printf(SPACE);
-                else
-                    printf(WALL);
-            }
-            else {
-                printf(WALL); // Corner
-            }
-        }
-        printf("\n");
-    }
-}
-
 bool is_cell_valid(const Maze *maze, int old_x, int old_y, int new_x, int new_y) {
     bool x_valid = 0 <= new_x && new_x < maze->width;
     bool y_valid = 0 <= new_y && new_y < maze->height;
@@ -318,5 +272,22 @@ void maze_mutate(Maze *maze) {
         }
         
         free(path.cells);
+    }
+}
+
+void maze_braid(Maze *maze, int probability) {
+    if (!maze || probability <= 0) return;
+
+    for (int y = 1; y < maze->height - 1; y++) {
+        for (int x = 1; x < maze->width - 1; x++) {
+            // Randomly remove RIGHT wall
+            if (!maze->cells[y][x].right && x < maze->width - 1 && random_int(0, 100) < probability) {
+                carve_passage(maze, y, x, y, x + 1);
+            }
+            // Randomly remove DOWN wall
+            if (!maze->cells[y][x].down && y < maze->height - 1 && random_int(0, 100) < probability) {
+                carve_passage(maze, y, x, y + 1, x);
+            }
+        }
     }
 }

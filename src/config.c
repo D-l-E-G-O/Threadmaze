@@ -15,6 +15,11 @@ void config_set_defaults(GameConfig *config) {
     config->mutation_interval = 5;
     config->mutation_amount = 1;
 
+    // Default Enemy Settings
+    config->braid_probability = 10; // 10% of the walls are removed
+    config->enemy_count = 3;
+    config->enemy_speed_ms = 500;   // 1 movement every 0.5s
+
     // Default Controls (WASD/ZQSD friendly defaults, or specific)
     config->key_up    = 'z';
     config->key_down  = 's';
@@ -33,6 +38,9 @@ void config_save(const GameConfig *config) {
     fprintf(f, "HINT=%d\n", config->hint_duration);
     fprintf(f, "MUTATION_FREQUENCY=%d\n", config->mutation_interval);
     fprintf(f, "MUTATION_AMOUNT=%d\n", config->mutation_amount);
+    fprintf(f, "BRAID_PROBABILITY=%d\n", config->braid_probability);
+    fprintf(f, "ENEMY_COUNT=%d\n", config->enemy_count);
+    fprintf(f, "ENEMY_SPEED=%d\n", config->enemy_speed_ms);
     fprintf(f, "KEY_UP=%c\n", config->key_up);
     fprintf(f, "KEY_DOWN=%c\n", config->key_down);
     fprintf(f, "KEY_LEFT=%c\n", config->key_left);
@@ -65,6 +73,9 @@ void config_load(GameConfig *config) {
             else if (strcmp(key_str, "HINT") == 0) config->hint_duration = val_int;
             else if (strcmp(key_str, "MUTATION_FREQUENCY") == 0) config->mutation_interval = val_int;
             else if (strcmp(key_str, "MUTATION_AMOUNT") == 0) config->mutation_amount = val_int;
+            else if (strcmp(key_str, "BRAID_PROBABILITY") == 0) config->braid_probability = val_int;
+            else if (strcmp(key_str, "ENEMY_COUNT") == 0) config->enemy_count = val_int;
+            else if (strcmp(key_str, "ENEMY_SPEED") == 0) config->enemy_speed_ms = val_int;
             else if (strcmp(key_str, "KEY_UP") == 0) config->key_up = val_char;
             else if (strcmp(key_str, "KEY_DOWN") == 0) config->key_down = val_char;
             else if (strcmp(key_str, "KEY_LEFT") == 0) config->key_left = val_char;
@@ -84,4 +95,7 @@ void config_clamp_values(GameConfig *config) {
     config->hint_duration = clamp_int(config->hint_duration, MIN_HINT_DURATION, MAX_HINT_DURATION);
     config->mutation_interval = clamp_int(config->mutation_interval, MIN_MUTATION_INTERVAL, MAX_MUTATION_INTERVAL);
     config->mutation_amount = clamp_int(config->mutation_amount, MIN_MUTATION_AMOUNT, MAX_MUTATION_AMOUNT);
+    config->braid_probability = clamp_int(config->braid_probability, MIN_BRAID_PROBABILITY, MAX_BRAID_PROBABILITY);
+    config->enemy_count = clamp_int(config->enemy_count, MIN_ENEMY_COUNT, MAX_ENEMY_COUNT);
+    config->enemy_speed_ms = clamp_int(config->enemy_speed_ms, MIN_ENEMY_SPEED, MAX_ENEMY_SPEED);
 }

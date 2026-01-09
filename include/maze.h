@@ -10,6 +10,7 @@
 #define EXIT BOLDRED "██" RESET
 #define PLAYER BOLDGREEN "██" RESET
 #define HINT BOLDBLUE "**" RESET
+#define ENEMY BOLDMAGENTA "██" RESET
 
 typedef struct {
     Cell **cells;
@@ -36,12 +37,6 @@ void maze_free(Maze *maze);
  * @param maze Pointer to the maze structure.
  */
 void maze_fill(Maze *maze);
-
-/**
- * Prints the maze to the standard output.
- * @param maze Pointer to the maze structure (read-only).
- */
-void maze_display(const Maze *maze);
 
 /**
  * Checks if a move from (old_x, old_y) to (new_x, new_y) is valid (no walls).
@@ -88,3 +83,11 @@ void generate_maze_wilson(Maze *maze);
  * @param maze Pointer to the maze structure.
  */
 void maze_mutate(Maze *maze);
+
+/**
+ * Removes internal walls randomly to create cycles (loops) in the maze.
+ * This makes the maze "imperfect" and playable with enemies.
+ * @param maze Pointer to the maze structure.
+ * @param probability Percentage chance (0-100) to remove a wall.
+ */
+void maze_braid(Maze *maze, int probability);

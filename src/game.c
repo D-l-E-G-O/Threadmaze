@@ -7,6 +7,7 @@
 #include "render.h"
 #include "input.h"
 #include "hint.h"
+#include <ctype.h>  // for tolower()
 
 // --- Internal Helper Functions ---
 
@@ -40,6 +41,11 @@ static void game_context_init(GameContext *ctx, GameConfig *config) {
     maze_init(&ctx->maze, config->width, config->height);
     generate_maze_wilson(&ctx->maze);
     player_init(&ctx->player, &ctx->maze);
+
+    // Make maze imperfect (braiding)
+    if (config->braid_probability > 0) {
+        maze_braid(&ctx->maze, config->braid_probability);
+    }
 
     // Initialize Timers
     hint_init(&ctx->hint, &ctx->hint_timer, config->hint_duration);
@@ -83,11 +89,8 @@ static bool process_input(GameContext *ctx) {
         return false;
     }
 
-    char input = get_input_non_blocking();
+    char input = tolower(get_input_non_blocking());
     if (input == 0) return false;
-
-    // Check for Quit (Optional hardcoded safety key, e.g., ESC or 'x')
-    // if (input == 27) { ctx->is_running = false; return false; }
 
     bool state_changed = false;
 
@@ -180,21 +183,6 @@ static bool update_game_state(GameContext *ctx) {
     return state_changed;
 }
 
-/**
- * Renders the current frame.
- * @param ctx Pointer to the game context.
- */
-static void render_game(const GameContext *ctx) {
-    int time_display = -1;
-    if (ctx->config->time_limit > 0) {
-        time_display = timer_get_remaining((Timer*)&ctx->main_timer); 
-        // Cast simply to satisfy const correctness if timer_get_remaining doesn't take const
-    }
-    // Note: We cast away const for 'maze' because print_game might not expect const currently,
-    // though print_maze should ideally take const Maze*.
-    print_game((Maze*)&ctx->maze, time_display);
-}
-
 // --- Main Entry Point ---
 
 void game_start(GameConfig *config) {
@@ -209,7 +197,7 @@ void game_start(GameConfig *config) {
     }
 
     // Initial render
-    render_game(&ctx);
+    print_game(&ctx);
 
     // Setup nanosleep structure for 10ms
     struct timespec ts;
@@ -230,7 +218,7 @@ void game_start(GameConfig *config) {
         if (update_game_state(&ctx)) needs_render = true;
 
         if (needs_render && ctx.is_running) {
-            render_game(&ctx);
+            print_game(&ctx);
         }
 
         // CPU Saver : Sleep for 10ms
@@ -248,7 +236,7 @@ void game_start(GameConfig *config) {
     if (!stop_requested) {
         int final_time = (config->time_limit > 0) ? timer_get_remaining(&ctx.main_timer) : 0;
         // Final render to ensure user sees the end state
-        render_game(&ctx); 
+        print_game(&ctx); 
         print_game_result(ctx.victory, config->time_limit, final_time);
     } else {
         printf("\n" YELLOW "Game interrupted by user. Exiting..." RESET "\n");

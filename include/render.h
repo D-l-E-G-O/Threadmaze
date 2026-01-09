@@ -1,12 +1,11 @@
 #pragma once
-#include "maze.h"
+#include "context.h"
 
 /**
- * Clears the screen and prints the current game state (timer + maze).
- * @param maze Pointer to the maze structure (read-only).
- * @param time_left Time remaining in seconds (negative if disabled).
+ * Renders the full game state.
+ * @param ctx Pointer to the game context (read-only).
  */
-void print_game(const Maze *maze, int time_left);
+void print_game(const GameContext *ctx);
 
 /**
  * Prints the end-game message (Victory or Defeat).

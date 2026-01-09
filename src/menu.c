@@ -20,7 +20,7 @@ void change_key(char *key_to_change, const char *name) {
 void show_options_menu(GameConfig *config) {
     bool in_options = true;
     while (in_options && !stop_requested) {
-        system("clear");
+        printf(CLEAR); // ANSI escape code equivalent to system("clear");
         printf(BOLD "=== OPTIONS ===\n" RESET);
         printf("1. Maze width           [%d]    (0 = AUTO)  (Between %d and %d)\n", config->width, MIN_MAZE_WIDTH, MAX_MAZE_WIDTH);
         printf("2. Maze height          [%d]    (0 = AUTO)  (Between %d and %d)\n", config->height, MIN_MAZE_HEIGHT, MAX_MAZE_HEIGHT);
@@ -28,13 +28,16 @@ void show_options_menu(GameConfig *config) {
         printf("4. Hint duration        [%d s]  (0 = OFF)   (Between %d and %d)\n", config->hint_duration, MIN_HINT_DURATION, MAX_HINT_DURATION);
         printf("5. Mutation frequency   [%d s]  (0 = OFF)   (Between %d and %d)\n", config->mutation_interval, MIN_MUTATION_INTERVAL, MAX_MUTATION_INTERVAL);
         printf("6. Mutation amount      [%d walls]          (Between %d and %d)\n", config->mutation_amount, MIN_MUTATION_AMOUNT, MAX_MUTATION_AMOUNT);
+        printf("7. Braid percentage     [%d]                (Between %d and %d)\n", config->braid_probability, MIN_BRAID_PROBABILITY, MAX_BRAID_PROBABILITY);
+        printf("8. Enemy count          [%d]                (Between %d and %d)\n", config->enemy_count, MIN_ENEMY_COUNT, MAX_ENEMY_COUNT);
+        printf("9. Enemy movement delay [%d]                (Between %d and %d)\n", config->enemy_speed_ms, MIN_ENEMY_SPEED, MAX_ENEMY_SPEED);
         printf("----------------\n");
-        printf("7. Up    [%c]\n", config->key_up);
-        printf("8. Down  [%c]\n", config->key_down);
-        printf("9. Left  [%c]\n", config->key_left);
-        printf("10. Right [%c]\n", config->key_right);
+        printf("10. Up    [%c]\n", config->key_up);
+        printf("11. Down  [%c]\n", config->key_down);
+        printf("12. Left  [%c]\n", config->key_left);
+        printf("13. Right [%c]\n", config->key_right);
         printf("----------------\n");
-        printf("11. SAVE AND GO BACK\n");
+        printf("14. SAVE AND GO BACK\n");
         printf("0. CANCEL\n");
         printf("Your choice : ");
 
@@ -69,11 +72,23 @@ void show_options_menu(GameConfig *config) {
                 printf("New mutation amount : "); 
                 if(fgets(buf, 20, stdin)) config->mutation_amount = atoi(buf); 
                 break;
-            case 7: change_key(&config->key_up, "UP"); break;
-            case 8: change_key(&config->key_down, "DOWN"); break;
-            case 9: change_key(&config->key_left, "LEFT"); break;
-            case 10: change_key(&config->key_right, "RIGHT"); break;
-            case 11:
+            case 7:
+                printf("New braid percentage : "); 
+                if(fgets(buf, 20, stdin)) config->braid_probability = atoi(buf); 
+                break;
+            case 8:
+                printf("New enemy count : "); 
+                if(fgets(buf, 20, stdin)) config->enemy_count = atoi(buf); 
+                break;
+            case 9:
+                printf("New enemy movement delay : "); 
+                if(fgets(buf, 20, stdin)) config->enemy_speed_ms = atoi(buf); 
+                break;
+            case 10: change_key(&config->key_up, "UP"); break;
+            case 11: change_key(&config->key_down, "DOWN"); break;
+            case 12: change_key(&config->key_left, "LEFT"); break;
+            case 13: change_key(&config->key_right, "RIGHT"); break;
+            case 14:
                 config_save(config);
                 in_options = false;
                 break;
@@ -92,7 +107,7 @@ bool run_main_menu(GameConfig *config) {
     while(true) {
         if (stop_requested) return false;
 
-        system("clear");
+        printf(CLEAR); // ANSI escape code equivalent to system("clear");
         printf(BOLDBLUE "=== THREADMAZE ===\n" RESET);
         printf("1. Play\n");
         printf("2. Settings\n");
