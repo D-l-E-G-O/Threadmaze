@@ -47,6 +47,14 @@ static void game_context_init(GameContext *ctx, GameConfig *config) {
         maze_braid(&ctx->maze, config->braid_probability);
     }
 
+    // Init Enemies
+    ctx->enemy_count = config->enemy_count;
+    ctx->enemies = NULL;
+    if (ctx->enemy_count > 0) {
+        ctx->enemies = calloc(ctx->enemy_count, sizeof(Enemy));
+        enemies_init(ctx->enemies, ctx->enemy_count, &ctx->maze, &ctx->player);
+    }
+
     // Initialize Timers
     hint_init(&ctx->hint, &ctx->hint_timer, config->hint_duration);
     timer_init(&ctx->main_timer, config->time_limit);
@@ -72,6 +80,8 @@ static void game_context_free(GameContext *ctx) {
     hint_deactivate(&ctx->hint, &ctx->maze);
     hint_free(&ctx->hint);
     timer_stop(&ctx->mutation_timer);
+
+    if (ctx->enemies) free(ctx->enemies);
 
     maze_free(&ctx->maze);
     input_restore();
@@ -178,6 +188,27 @@ static bool update_game_state(GameContext *ctx) {
             timer_start(&ctx->mutation_timer);
             state_changed = true;
         }
+    }
+
+    // 5. Enemy Logic
+    static int enemy_tick_accumulator = 0;
+    enemy_tick_accumulator += 10; // +10ms
+
+    if (ctx->enemy_count > 0 && enemy_tick_accumulator >= ctx->config->enemy_speed_ms) {
+        enemy_tick_accumulator = 0;
+        
+        // Move all enemies
+        for (int i = 0; i < ctx->enemy_count; i++) {
+            enemy_move(&ctx->enemies[i], &ctx->maze, &ctx->player);
+            
+            // Collision Check
+            if (ctx->enemies[i].x == ctx->player.x && ctx->enemies[i].y == ctx->player.y) {
+                ctx->is_running = false;
+                ctx->victory = false;
+                return true;
+            }
+        }
+        state_changed = true;
     }
 
     return state_changed;
