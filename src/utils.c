@@ -1,6 +1,7 @@
 #define _XOPEN_SOURCE 700
 #include "utils.h"
 #include <sys/ioctl.h>
+#include <ctype.h>  // For tolower()
 
 // Definition of the global variable
 volatile sig_atomic_t stop_requested = 0;
@@ -45,7 +46,7 @@ int get_terminal_height(void) {
 char read_char() {
     char buf[10];
     if (fgets(buf, sizeof(buf), stdin)) {
-        return buf[0];
+        return tolower(buf[0]);
     }
     return 0;
 }

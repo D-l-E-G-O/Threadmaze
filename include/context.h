@@ -4,6 +4,7 @@
 #include "config.h"
 #include "timer.h"
 #include "hint.h"
+#include "enemy.h"
 
 /**
  * GameContext holds the entire state of the game session.
@@ -14,6 +15,8 @@ typedef struct {
     Maze maze;
     Player player;
     Hint hint;
+    Enemy *enemies;
+    int enemy_count;
     
     // Timers
     Timer main_timer;       // Maze timer

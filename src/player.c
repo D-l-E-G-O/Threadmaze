@@ -8,12 +8,6 @@ void player_init(Player *player, Maze *maze) {
     if (!player || !maze) return;
     player->x = 0;
     player->y = 0;
-
-    // Safety check for maze bounds
-    if (maze->cells && maze->height > 0 && maze->width > 0) {
-        maze->cells[0][0].symbol = PLAYER;
-        maze->cells[maze->height - 1][maze->width - 1].symbol = EXIT;
-    }
 }
 
 void player_move(Player *player, Direction direction, Maze *maze) {

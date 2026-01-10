@@ -7,6 +7,7 @@
 #include "render.h"
 #include "input.h"
 #include "hint.h"
+#include <ctype.h>  // for tolower()
 
 // --- Internal Helper Functions ---
 
@@ -41,6 +42,19 @@ static void game_context_init(GameContext *ctx, GameConfig *config) {
     generate_maze_wilson(&ctx->maze);
     player_init(&ctx->player, &ctx->maze);
 
+    // Make maze imperfect (braiding)
+    if (config->braid_probability > 0) {
+        maze_braid(&ctx->maze, config->braid_probability);
+    }
+
+    // Init Enemies
+    ctx->enemy_count = config->enemy_count;
+    ctx->enemies = NULL;
+    if (ctx->enemy_count > 0) {
+        ctx->enemies = calloc(ctx->enemy_count, sizeof(Enemy));
+        enemies_init(ctx->enemies, ctx->enemy_count, &ctx->maze, &ctx->player);
+    }
+
     // Initialize Timers
     hint_init(&ctx->hint, &ctx->hint_timer, config->hint_duration);
     timer_init(&ctx->main_timer, config->time_limit);
@@ -67,6 +81,8 @@ static void game_context_free(GameContext *ctx) {
     hint_free(&ctx->hint);
     timer_stop(&ctx->mutation_timer);
 
+    if (ctx->enemies) free(ctx->enemies);
+
     maze_free(&ctx->maze);
     input_restore();
 }
@@ -83,11 +99,8 @@ static bool process_input(GameContext *ctx) {
         return false;
     }
 
-    char input = get_input_non_blocking();
+    char input = tolower(get_input_non_blocking());
     if (input == 0) return false;
-
-    // Check for Quit (Optional hardcoded safety key, e.g., ESC or 'x')
-    // if (input == 27) { ctx->is_running = false; return false; }
 
     bool state_changed = false;
 
@@ -177,22 +190,28 @@ static bool update_game_state(GameContext *ctx) {
         }
     }
 
-    return state_changed;
-}
+    // 5. Enemy Logic
+    static int enemy_tick_accumulator = 0;
+    enemy_tick_accumulator += 10; // +10ms
 
-/**
- * Renders the current frame.
- * @param ctx Pointer to the game context.
- */
-static void render_game(const GameContext *ctx) {
-    int time_display = -1;
-    if (ctx->config->time_limit > 0) {
-        time_display = timer_get_remaining((Timer*)&ctx->main_timer); 
-        // Cast simply to satisfy const correctness if timer_get_remaining doesn't take const
+    if (ctx->enemy_count > 0 && enemy_tick_accumulator >= ctx->config->enemy_speed_ms) {
+        enemy_tick_accumulator = 0;
+        
+        // Move all enemies
+        for (int i = 0; i < ctx->enemy_count; i++) {
+            enemy_move(&ctx->enemies[i], &ctx->maze, &ctx->player, ctx->config->enemy_detection_range, ctx->config->enemy_patrol_range);
+            
+            // Collision Check
+            if (ctx->enemies[i].x == ctx->player.x && ctx->enemies[i].y == ctx->player.y) {
+                ctx->is_running = false;
+                ctx->victory = false;
+                return true;
+            }
+        }
+        state_changed = true;
     }
-    // Note: We cast away const for 'maze' because print_game might not expect const currently,
-    // though print_maze should ideally take const Maze*.
-    print_game((Maze*)&ctx->maze, time_display);
+
+    return state_changed;
 }
 
 // --- Main Entry Point ---
@@ -209,7 +228,7 @@ void game_start(GameConfig *config) {
     }
 
     // Initial render
-    render_game(&ctx);
+    print_game(&ctx);
 
     // Setup nanosleep structure for 10ms
     struct timespec ts;
@@ -230,7 +249,7 @@ void game_start(GameConfig *config) {
         if (update_game_state(&ctx)) needs_render = true;
 
         if (needs_render && ctx.is_running) {
-            render_game(&ctx);
+            print_game(&ctx);
         }
 
         // CPU Saver : Sleep for 10ms
@@ -248,10 +267,10 @@ void game_start(GameConfig *config) {
     if (!stop_requested) {
         int final_time = (config->time_limit > 0) ? timer_get_remaining(&ctx.main_timer) : 0;
         // Final render to ensure user sees the end state
-        render_game(&ctx); 
+        print_game(&ctx); 
         print_game_result(ctx.victory, config->time_limit, final_time);
     } else {
-        printf("\n" YELLOW "Game interrupted by user. Exiting..." RESET "\n");
+        printf("\n" BOLD YELLOW "Game interrupted by user. Exiting..." RESET "\n");
     }
 
     // 4. Cleanup

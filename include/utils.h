@@ -4,24 +4,26 @@
 #include <unistd.h>
 #include <signal.h>
 
-#define RESET   "\033[0m"
+#define CLEAR   "\e[H\e[2J\e[3J" // ANSI escape code equivalent to system("clear");
 
-// Regular Colors
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define WHITE   "\033[37m"
-#define GRAY    "\033[90m"
+#define RESET       "\e[0m"
 
-// Bold
-#define BOLD        "\033[1m"
-#define BOLDRED     "\033[1m\033[31m"
-#define BOLDGREEN   "\033[1m\033[32m"
-#define BOLDYELLOW  "\033[1m\033[33m"
-#define BOLDBLUE    "\033[1m\033[34m"
+// Styles
+#define REGULAR     "\e[0;"
+#define BOLD        "\e[1;"
+#define UNDERLINE   "\e[4;"
+#define BACKGROUND  "\e["
+
+// Colors
+#define BLACK   "30m"
+#define RED     "31m"
+#define GREEN   "32m"
+#define YELLOW  "33m"
+#define BLUE    "34m"
+#define PURPLE  "35m"
+#define CYAN    "36m"
+#define WHITE   "37m"
+#define GRAY    "90m"
 
 // Global flag to signal an interruption request (CTRL+C)
 // "volatile sig_atomic_t" is the only type safe to read/write in a signal handler.

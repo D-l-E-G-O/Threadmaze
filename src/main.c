@@ -40,17 +40,20 @@ int main(int argc, char *argv[]) {
     }
 
     // 3. Main Menu Loop
-    if (run_main_menu(&config)) {
+    bool play;
+    if ((play = run_main_menu(&config))) {
         // Security check
         if (!stop_requested) {
+            // Other security check
+            config_clamp_values(&config);
             // Start the game with the config
             game_start(&config);
         } 
     }
 
     // End message
-    if (stop_requested) {
-        printf("\n" YELLOW "Goodbye!" RESET "\n");
+    if (stop_requested || !play) {
+        printf("\n" BOLD YELLOW "Goodbye!" RESET "\n");
     }
 
     return EXIT_SUCCESS;
