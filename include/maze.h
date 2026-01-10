@@ -4,13 +4,13 @@
 #include "path.h"
 #include "cell.h"
 
-#define WALL GRAY "██" RESET
-#define SPACE "  "
-#define CELL "  "
-#define EXIT BOLDRED "██" RESET
-#define PLAYER BOLDGREEN "██" RESET
-#define HINT BOLDBLUE "**" RESET
-#define ENEMY BOLDMAGENTA "██" RESET
+#define WALL    REGULAR GRAY "██" RESET
+#define SPACE   "  "
+#define CELL    "  "
+#define EXIT    BOLD RED "██" RESET
+#define PLAYER  BOLD GREEN "██" RESET
+#define HINT    BOLD BLUE "**" RESET
+#define ENEMY   BOLD PURPLE "██" RESET
 
 typedef struct {
     Cell **cells;

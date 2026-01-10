@@ -5,6 +5,8 @@
 typedef struct {
     int x;
     int y;
+    int origin_x;
+    int origin_y;
     bool active;
 } Enemy;
 
@@ -18,10 +20,11 @@ typedef struct {
 void enemies_init(Enemy *enemies, int count, const Maze *maze, const Player *player);
 
 /**
- * Moves a single enemy towards the player.
- * Simple AI: tries to reduce horizontal or vertical distance.
- * @param enemy Pointer to the enemy.
- * @param maze Pointer to the maze (collision check).
+ * Moves an enemy. Uses A* if player is close, random patrol otherwise.
+ * @param enemy Pointer to the enemy to move.
+ * @param maze Pointer to the maze.
  * @param player Pointer to the player (target).
+ * @param detection_range Distance to trigger pursuit.
+ * @param patrol_range Max distance from origin allowed when patrolling.
  */
-void enemy_move(Enemy *enemy, const Maze *maze, const Player *player);
+void enemy_move(Enemy *enemy, const Maze *maze, const Player *player, int detection_range, int patrol_range);

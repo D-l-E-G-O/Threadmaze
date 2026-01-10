@@ -199,7 +199,7 @@ static bool update_game_state(GameContext *ctx) {
         
         // Move all enemies
         for (int i = 0; i < ctx->enemy_count; i++) {
-            enemy_move(&ctx->enemies[i], &ctx->maze, &ctx->player);
+            enemy_move(&ctx->enemies[i], &ctx->maze, &ctx->player, ctx->config->enemy_detection_range, ctx->config->enemy_patrol_range);
             
             // Collision Check
             if (ctx->enemies[i].x == ctx->player.x && ctx->enemies[i].y == ctx->player.y) {
@@ -270,7 +270,7 @@ void game_start(GameConfig *config) {
         print_game(&ctx); 
         print_game_result(ctx.victory, config->time_limit, final_time);
     } else {
-        printf("\n" YELLOW "Game interrupted by user. Exiting..." RESET "\n");
+        printf("\n" BOLD YELLOW "Game interrupted by user. Exiting..." RESET "\n");
     }
 
     // 4. Cleanup

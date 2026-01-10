@@ -28,6 +28,12 @@
 #define MIN_ENEMY_SPEED 500
 #define MAX_ENEMY_SPEED 2000
 
+#define MIN_ENEMY_DETECTION_RANGE 5
+#define MAX_ENEMY_DETECTION_RANGE MAX_MAZE_WIDTH + MAX_MAZE_HEIGHT
+
+#define MIN_ENEMY_PATROL_RANGE 5
+#define MAX_ENEMY_PATROL_RANGE MAX_MAZE_WIDTH + MAX_MAZE_HEIGHT
+
 typedef struct GameConfig {
     // --- Maze Settings ---
     int width;
@@ -40,9 +46,11 @@ typedef struct GameConfig {
     int mutation_amount;    // Number of walls to change during one mutation
 
     // --- Enemy & Difficulty ---
-    int braid_probability; // The percentage chance that an internal wall will be removed (0 = perfect, 100 = empty).
-    int enemy_count;       // The number of enemies (0 = disabled)
-    int enemy_speed_ms;    // The movement speed of the enemies in milliseconds
+    int braid_probability;      // The percentage chance that an internal wall will be removed (0 = perfect, 100 = empty).
+    int enemy_count;            // The number of enemies (0 = disabled)
+    int enemy_speed_ms;         // The movement speed of the enemies in milliseconds
+    int enemy_detection_range;  // The maximum distance at which the enemy can still detect and chase the player
+    int enemy_patrol_range;     // The maximum distance at which the enemy can move away from its spawnpoint (if it is not chasing the player)
 
     // --- Controls (Keybindings) ---
     char key_up;

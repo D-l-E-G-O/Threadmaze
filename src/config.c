@@ -12,13 +12,16 @@ void config_set_defaults(GameConfig *config) {
     config->height = MAX_MAZE_HEIGHT;
     config->time_limit = 0;
     config->hint_duration = 2;
-    config->mutation_interval = 5;
-    config->mutation_amount = 1;
+    config->mutation_interval = 5;      // A mutation occurs every 5 seconds
+    config->mutation_amount = 2;        // A mutation affects 2 walls
+    config->braid_probability = 10;     // 10% of the walls are removed
 
     // Default Enemy Settings
-    config->braid_probability = 10; // 10% of the walls are removed
+    
     config->enemy_count = 3;
-    config->enemy_speed_ms = 500;   // 1 movement every 0.5s
+    config->enemy_speed_ms = 1000;      // 1 movement every second
+    config->enemy_detection_range = 8;  // Detects the player from 8 cells away
+    config->enemy_patrol_range = 5;     // Can't move away from its spawnpoint for more than 5 cells (if it isn't chasing the player)
 
     // Default Controls (WASD/ZQSD friendly defaults, or specific)
     config->key_up    = 'z';
@@ -39,8 +42,12 @@ void config_save(const GameConfig *config) {
     fprintf(f, "MUTATION_FREQUENCY=%d\n", config->mutation_interval);
     fprintf(f, "MUTATION_AMOUNT=%d\n", config->mutation_amount);
     fprintf(f, "BRAID_PROBABILITY=%d\n", config->braid_probability);
+
     fprintf(f, "ENEMY_COUNT=%d\n", config->enemy_count);
     fprintf(f, "ENEMY_SPEED=%d\n", config->enemy_speed_ms);
+    fprintf(f, "ENEMY_DETECTION_RANGE=%d\n", config->enemy_detection_range);
+    fprintf(f, "ENEMY_PATROL_RANGE=%d\n", config->enemy_patrol_range);
+
     fprintf(f, "KEY_UP=%c\n", config->key_up);
     fprintf(f, "KEY_DOWN=%c\n", config->key_down);
     fprintf(f, "KEY_LEFT=%c\n", config->key_left);
@@ -76,6 +83,8 @@ void config_load(GameConfig *config) {
             else if (strcmp(key_str, "BRAID_PROBABILITY") == 0) config->braid_probability = val_int;
             else if (strcmp(key_str, "ENEMY_COUNT") == 0) config->enemy_count = val_int;
             else if (strcmp(key_str, "ENEMY_SPEED") == 0) config->enemy_speed_ms = val_int;
+            else if (strcmp(key_str, "ENEMY_DETECTION_RANGE") == 0) config->enemy_detection_range = val_int;
+            else if (strcmp(key_str, "ENEMY_PATROL_RANGE") == 0) config->enemy_patrol_range = val_int;
             else if (strcmp(key_str, "KEY_UP") == 0) config->key_up = val_char;
             else if (strcmp(key_str, "KEY_DOWN") == 0) config->key_down = val_char;
             else if (strcmp(key_str, "KEY_LEFT") == 0) config->key_left = val_char;
@@ -98,4 +107,6 @@ void config_clamp_values(GameConfig *config) {
     config->braid_probability = clamp_int(config->braid_probability, MIN_BRAID_PROBABILITY, MAX_BRAID_PROBABILITY);
     config->enemy_count = clamp_int(config->enemy_count, MIN_ENEMY_COUNT, MAX_ENEMY_COUNT);
     config->enemy_speed_ms = clamp_int(config->enemy_speed_ms, MIN_ENEMY_SPEED, MAX_ENEMY_SPEED);
+    config->enemy_detection_range = clamp_int(config->enemy_detection_range, MIN_ENEMY_DETECTION_RANGE, MAX_ENEMY_DETECTION_RANGE);
+    config->enemy_patrol_range = clamp_int(config->enemy_patrol_range, MIN_ENEMY_PATROL_RANGE, MAX_ENEMY_PATROL_RANGE);
 }

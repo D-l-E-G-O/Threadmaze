@@ -15,7 +15,7 @@ void print_game(const GameContext *ctx) {
     int time_left = 0;
     if (ctx->config->time_limit > 0) {
         time_left = timer_get_remaining((Timer*)&ctx->main_timer);
-        char *bold = time_left % 2 == 0 ? BOLD : "";
+        char *bold = time_left % 2 == 0 ? BOLD : REGULAR;
         char *color = time_left < 10 ? RED : BLUE;
         printf("Time left:%s%s %02d:%02d\n" RESET, bold, color, time_left / 60, time_left % 60);
     }
@@ -99,13 +99,13 @@ void print_game(const GameContext *ctx) {
 
 void print_game_result(bool victory, int initial_time, int time_left) {
     if (victory) {
-        printf(BOLDGREEN "=== VICTORY! ===\n");
+        printf(BOLD GREEN "=== VICTORY! ===\n");
         if (initial_time > 0)
             printf("You won in %d seconds!\n", initial_time - time_left);
         else
             printf("You won!\n");
     } else {
-        printf(BOLDRED "=== GAME OVER ===\n");
+        printf(BOLD RED "=== GAME OVER ===\n");
         if (initial_time > 0 && time_left <= 0) {
             printf("Time run out!\n");
         } else {

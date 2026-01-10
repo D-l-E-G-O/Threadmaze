@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
     }
 
     // 3. Main Menu Loop
-    if (run_main_menu(&config)) {
+    bool play;
+    if ((play = run_main_menu(&config))) {
         // Security check
         if (!stop_requested) {
             // Other security check
@@ -51,8 +52,8 @@ int main(int argc, char *argv[]) {
     }
 
     // End message
-    if (stop_requested) {
-        printf("\n" YELLOW "Goodbye!" RESET "\n");
+    if (stop_requested || !play) {
+        printf("\n" BOLD YELLOW "Goodbye!" RESET "\n");
     }
 
     return EXIT_SUCCESS;
