@@ -148,7 +148,7 @@ int show_end_game_menu(void) {
             return choice;
         }
         
-        // // Making the cursor go back up to hide invalid input
+        // Making the cursor go back up to hide invalid input
         printf("\033[A\033[2KChoice : ");
     }
 }

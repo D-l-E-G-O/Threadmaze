@@ -225,7 +225,7 @@ void game_start(GameConfig *config) {
 
     while (stay_in_game_loop && !stop_requested) {
         // Apply the seed before generating anything.
-        // If we replay, we use the saùe seed. If we came from main menu, it's a new seed.
+        // If we replay, we use the same seed. If we came from main menu, it's a new seed.
         srand(game_seed);
 
         GameContext ctx;
