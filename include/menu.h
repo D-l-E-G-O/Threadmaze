@@ -20,3 +20,9 @@ void show_options_menu(GameConfig *config);
  * @return true if the player chose to start the game, false if they chose to quit.
  */
 bool run_main_menu(GameConfig *config);
+
+/**
+ * Displays the end-of-game menu allowing the player to replay, go back, or quit.
+ * @return 1 for Replay, 2 for Main Menu, 3 for Quit.
+ */
+int show_end_game_menu(void);

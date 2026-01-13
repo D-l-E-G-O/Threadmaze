@@ -132,3 +132,23 @@ bool run_main_menu(GameConfig *config) {
         if (c == '3') return false;
     }
 }
+
+int show_end_game_menu(void) {
+    printf("1. Replay (Same Level)\n");
+    printf("2. Main Menu\n");
+    printf("3. Quit Game\n");
+    printf("\nChoice : ");
+
+    while (true) {
+        int choice = read_int();
+        
+        if (stop_requested) return 3; // Safety handle
+
+        if (choice >= 1 && choice <= 3) {
+            return choice;
+        }
+        
+        // // Making the cursor go back up to hide invalid input
+        printf("\033[A\033[2KChoice : ");
+    }
+}
