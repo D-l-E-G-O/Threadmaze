@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "maze.h"
 #include "matrix.h"
 #include "astar.h"
@@ -117,9 +116,6 @@ void generate_maze_wilson(Maze *maze) {
         perror("init_bool_matrix"); 
         exit(EXIT_FAILURE); 
     }
-
-    // seed RNG once
-    srand((unsigned)time(NULL));
 
     // pick initial cell to be in the tree (e.g., (0,0))
     int start_row = random_int(0, height - 1);

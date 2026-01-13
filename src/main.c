@@ -40,19 +40,23 @@ int main(int argc, char *argv[]) {
     }
 
     // 3. Main Menu Loop
-    bool play;
-    if ((play = run_main_menu(&config))) {
-        // Security check
-        if (!stop_requested) {
-            // Other security check
-            config_clamp_values(&config);
-            // Start the game with the config
-            game_start(&config);
-        } 
+    while (!stop_requested) {
+        if (run_main_menu(&config)) {
+            // If the player chooses "Play", we start the game
+            if (!stop_requested) {
+                // Security check
+                config_clamp_values(&config);
+                // Start the game with the config
+                game_start(&config);
+            }
+        } else {
+            // If run_main_menu returns false, the user chose "Quit"
+            stop_requested = 1;
+        }
     }
 
     // End message
-    if (stop_requested || !play) {
+    if (stop_requested) {
         printf("\n" BOLD YELLOW "Goodbye!" RESET "\n");
     }
 

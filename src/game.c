@@ -1,13 +1,14 @@
 #define _XOPEN_SOURCE 700
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h> // For nanosleep
+#include <time.h> // For nanosleep, time
+#include <ctype.h>  // for tolower()
 #include "game.h"
 #include "context.h"
 #include "render.h"
 #include "input.h"
 #include "hint.h"
-#include <ctype.h>  // for tolower()
+#include "menu.h"
 
 // --- Internal Helper Functions ---
 
@@ -217,62 +218,96 @@ static bool update_game_state(GameContext *ctx) {
 // --- Main Entry Point ---
 
 void game_start(GameConfig *config) {
-    GameContext ctx;
-
-    // 1. Initialize
-    game_context_init(&ctx, config);
-
-    // Start timer if enabled
-    if (config->time_limit > 0) {
-        timer_start(&ctx.main_timer);
-    }
-
-    // Initial render
-    print_game(&ctx);
-
-    // Setup nanosleep structure for 10ms
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 10 * 1000000; // 10 milliseconds
-
-    // 2. Game Loop
-    while (ctx.is_running) {
-        // IMMEDIATE CHECK: If CTRL+C was pressed during the sleep or render
-        if (stop_requested) {
-            ctx.is_running = false;
-            break; // Exit loop immediately to proceed to cleanup
-        }
-
-        bool needs_render = false;
-
-        if (process_input(&ctx)) needs_render = true;
-        if (update_game_state(&ctx)) needs_render = true;
-
-        if (needs_render && ctx.is_running) {
-            print_game(&ctx);
-        }
-
-        // CPU Saver : Sleep for 10ms
-        // If nanosleep is interrupted by a signal, it returns -1 and sets errno to EINTR.
-        // We don't strictly need to handle it because the loop will check stop_requested right after.
-        nanosleep(&ts, NULL);
-    }
-
-    // 3. End Game Screen
-    // Clear/Stop timers before final print
-    timer_stop(&ctx.main_timer);
+    // Generate a random seed for this session
+    unsigned int game_seed = (unsigned int)time(NULL);
     
+    bool stay_in_game_loop = true;
 
-    // Only print result if it wasn't a forced quit
-    if (!stop_requested) {
+    while (stay_in_game_loop && !stop_requested) {
+        // Apply the seed before generating anything.
+        // If we replay, we use the saùe seed. If we came from main menu, it's a new seed.
+        srand(game_seed);
+
+        GameContext ctx;
+
+        // 1. Initialize
+        game_context_init(&ctx, config);
+
+        // Start timer if enabled
+        if (config->time_limit > 0) {
+            timer_start(&ctx.main_timer);
+        }
+
+        // Initial render
+        print_game(&ctx);
+
+        // Setup nanosleep structure for 10ms
+        struct timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = 10 * 1000000; // 10 milliseconds
+
+        // 2. Game Loop
+        while (ctx.is_running) {
+            // IMMEDIATE CHECK: If CTRL+C was pressed during the sleep or render
+            if (stop_requested) {
+                ctx.is_running = false;
+                break; // Exit loop immediately to proceed to cleanup
+            }
+
+            bool needs_render = false;
+
+            if (process_input(&ctx)) needs_render = true;
+            if (update_game_state(&ctx)) needs_render = true;
+
+            if (needs_render && ctx.is_running) {
+                print_game(&ctx);
+            }
+
+            // CPU Saver : Sleep for 10ms
+            // If nanosleep is interrupted by a signal, it returns -1 and sets errno to EINTR.
+            // We don't strictly need to handle it because the loop will check stop_requested right after.
+            nanosleep(&ts, NULL);
+        }
+
+        // 3. End Game Screen
+        // Clear/Stop timers before final print
+        timer_stop(&ctx.main_timer);
+    
+        // Only print result if it wasn't a forced quit
+        if (stop_requested) {
+            // Forced quit
+            printf("\n" BOLD YELLOW "Game interrupted by user. Exiting..." RESET "\n");
+            game_context_free(&ctx);
+            break;
+        }
+
         int final_time = (config->time_limit > 0) ? timer_get_remaining(&ctx.main_timer) : 0;
         // Final render to ensure user sees the end state
         print_game(&ctx); 
         print_game_result(ctx.victory, config->time_limit, final_time);
-    } else {
-        printf("\n" BOLD YELLOW "Game interrupted by user. Exiting..." RESET "\n");
-    }
 
-    // 4. Cleanup
-    game_context_free(&ctx);
+        // 4. Cleanup
+        game_context_free(&ctx);
+
+        // 5. Show End Menu
+        int choice = show_end_game_menu();
+
+        switch (choice) {
+            case 1: // Replay
+                // We do not change 'game_seed'. 
+                // The loop continues, srand(game_seed) will be called again, 
+                // generating the exact same maze.
+                break; 
+            
+            case 2: // Main Menu
+                stay_in_game_loop = false;
+                // We break the loop, function returns to main.c
+                break;
+
+            case 3: // Quit
+                stay_in_game_loop = false;
+                stop_requested = 1; // Signal global stop to main.c
+                break;
+        }
+    }
 }
