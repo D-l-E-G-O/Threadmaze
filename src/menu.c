@@ -18,6 +18,9 @@ void change_key(char *key_to_change, const char *name) {
 }
 
 void show_options_menu(GameConfig *config) {
+    // Security clamp
+    config_clamp_values(config);
+    
     bool in_options = true;
     while (in_options && !stop_requested) {
         printf(CLEAR); // ANSI escape code equivalent to system("clear");
